@@ -1,0 +1,8 @@
+{
+    "cmake.sourceDirectory": "/home/piotrbar/Desktop/OPENGL/Base-opengl-project",
+    "files.associations": {
+        "glad.h": "c",
+        "iostream": "cpp",
+        "khrplatform.h": "c"
+    }
+}
