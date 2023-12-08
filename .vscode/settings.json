@@ -3,6 +3,7 @@
     "files.associations": {
         "glad.h": "c",
         "iostream": "cpp",
-        "khrplatform.h": "c"
+        "khrplatform.h": "c",
+        "ostream": "cpp"
     }
 }

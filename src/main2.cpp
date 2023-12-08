@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
@@ -9,19 +7,8 @@
 #include <vector>
 using namespace std;
 
-const float PI = 3.14159265359;
-
-int randomIntFromNeg4To4() {
-    // Initialize random seed
-   
-
-    // Generate random number between -4 and 4
-    return rand() % 15 - 5;
-}
-
 int main()
 {
-    srand(time(NULL));
     GLFWwindow* window;
     if(!glfwInit())
     {
@@ -78,34 +65,15 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    // vector<float> quad = {
-    //     100.0f, 100.0f,
-    //     200.0f, 100.0f,
-    //     200.0f, 200.0f,
+    vector<float> quad = {
+        100.0f, 100.0f,
+        200.0f, 100.0f,
+        200.0f, 200.0f,
 
-    //     100.0f, 100.0f,
-    //     200.0f, 200.0f,
-    //     100.0f, 200.0f
-    // };
-
-    vector<float> vertices;
-
-    float radius = 50;
-    float ox = 100;
-    float oy = 100;
-
-    int num_of_segments = 50;
-    float offset = 2*PI / float(num_of_segments);
-    float angle = 0;
-
-    for(int i = 0; i < num_of_segments; i++)
-    {
-        float cx = radius * cos(angle) + ox;
-        float cy = radius * sin(angle) + oy;
-        vertices.push_back(cx);
-        vertices.push_back(cy);
-        angle += offset;
-    }
+        100.0f, 100.0f,
+        200.0f, 200.0f,
+        100.0f, 200.0f
+    };
 
     unsigned int vao;
     unsigned int vbo;
@@ -115,7 +83,7 @@ int main()
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, quad.size() * sizeof(float), quad.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
@@ -134,20 +102,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(vao);
-
-
-        for(int i = 0; i < 25; i++)
-        {
-            translations[i].x += randomIntFromNeg4To4();
-            translations[i].y += randomIntFromNeg4To4();
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, instancevbo);
-        glBufferSubData(GL_ARRAY_BUFFER,0, 25 * sizeof(glm::vec2), &translations[0]);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_of_segments, 25);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 25);
         glBindVertexArray(0);
         
         glfwSwapBuffers(window);
