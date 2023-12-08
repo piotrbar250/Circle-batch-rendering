@@ -1,9 +1,6 @@
 src/main.cpp
+src/BoidsRenderer.h
 src/10.1.instancing.vs
 src/10.1.instancing.fs
 ---
-now i'am rendering circles
-this code seems to be working
-tell me if this is a efficient approach for batch rendering
-also tell me if this is suitable for dynamic batch rendering using cuda where each kernel will be computing particular circle translation
-is this also proper and efficient approach to update postins in the loop 
+review this code and tell me if you can see any potential bugs

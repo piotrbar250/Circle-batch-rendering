@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/piotrbar/Desktop/OPENGL/Base-opengl-project",
+    "cmake.sourceDirectory": "/home/piotrbar/Desktop/OPENGL/Batch-rendering",
     "files.associations": {
         "glad.h": "c",
         "iostream": "cpp",
