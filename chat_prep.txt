@@ -1,0 +1,5 @@
+src/main.cpp
+src/10.1.instancing.vs
+src/10.1.instancing.fs
+---
+only one quad renders
