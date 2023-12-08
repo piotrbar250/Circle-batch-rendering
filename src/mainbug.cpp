@@ -19,17 +19,18 @@ int randomIntFromNeg4To4() {
     return rand() % 15 - 5;
 }
 
+
 int main()
 {
+float screenWidth = 1000;
+float screenHeight = 1000;
+
     srand(time(NULL));
     GLFWwindow* window;
     if(!glfwInit())
     {
         return -1;
     }
-
-    float screenWidth = 1000;
-    float screenHeight = 1000;
 
     window = glfwCreateWindow(screenWidth, screenHeight, "Window!", NULL, NULL);
 
@@ -46,6 +47,7 @@ int main()
     shader.use();
     shader.setVec3("u_Color", glm::vec3(1.0f, 0.0f, 0.0f));
 
+    cout << screenHeight << endl;
     glm::mat4 projection = glm::ortho(0.0f, screenWidth, 0.0f, screenHeight); 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -54,15 +56,17 @@ int main()
     shader.setMat4("u_mvp", mvp);
 
     glm::vec2 translations[25];
+    glm::vec2 directions[25];
     int index = 0;
     for(int y = 0; y < 5; y++)
     {
         for(int x = 0; x < 5; x++)
         {
             glm::vec2 translation;
-            translation.x = x * 200;
-            translation.y = y * 200;
-            translations[index++] = translation;     
+            translation.x = randomIntFromNeg4To4();//x * 200;
+            translation.y = randomIntFromNeg4To4();// * 200;
+            translations[index] = translation;     
+            directions[index++] = translation;
         }
     }
 
@@ -90,11 +94,17 @@ int main()
 
     vector<float> vertices;
 
-    float radius = 25;
-    float ox = 100;
-    float oy = 100;
+    float radius = 100;
 
-    int num_of_segments = 50;
+    //this should in my opionion place the center of the circle in the middle of the screen 1000*1000 but it doesnt
+    float ox = 500;
+    float oy = 500;    
+    
+    // this apparently places it in the middle why, whats wrong??
+    // float ox = 1000;
+    // float oy = 1000;
+
+    int num_of_segments = 4;
     float offset = 2*PI / float(num_of_segments);
     float angle = 0;
 
@@ -105,6 +115,10 @@ int main()
         vertices.push_back(cx);
         vertices.push_back(cy);
         angle += offset;
+
+        cout << "cx: " << cx << endl;
+        cout << "cy: " << cy << endl;
+        cout << endl << endl;
     }
 
     unsigned int vao;
@@ -138,17 +152,23 @@ int main()
 
         for(int i = 0; i < 25; i++)
         {
-            translations[i].x += randomIntFromNeg4To4();
-            translations[i].y += randomIntFromNeg4To4();
-        }        
-        
+            translations[i].x += directions[i].x;
+            translations[i].y += directions[i].y;
+        }
+
+        for(int i = 0; i < 25; i++)
+        {
+            translations[i].x = 0;
+            translations[i].y = 0;
+        }
+
 
         glBindBuffer(GL_ARRAY_BUFFER, instancevbo);
         glBufferSubData(GL_ARRAY_BUFFER,0, 25 * sizeof(glm::vec2), &translations[0]);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_of_segments, 25);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_of_segments, 1);
         glBindVertexArray(0);
         
         glfwSwapBuffers(window);
