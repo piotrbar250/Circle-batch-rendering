@@ -47,11 +47,16 @@ int main()
         for(int x = 0; x < 5; x++)
         {
             glm::vec2 translation;
-            translation.x = x * 150;
-            translation.y = y * 150;
+            translation.x = x * 200;
+            translation.y = y * 200;
             translations[index++] = translation;     
         }
     }
+
+    // for(int i = 0; i < 25; i++ )
+    // {
+    //     cout << i << " " << translations[i].x << " " << translations[i].y << endl;
+    // }
 
     unsigned int instancevbo;
     glGenBuffers(1, &instancevbo);
@@ -84,7 +89,7 @@ int main()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_VERTEX_ARRAY, instancevbo);
+    glBindBuffer(GL_ARRAY_BUFFER, instancevbo);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribDivisor(1, 1);

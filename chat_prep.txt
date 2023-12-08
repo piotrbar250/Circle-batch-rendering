@@ -2,4 +2,5 @@ src/main.cpp
 src/10.1.instancing.vs
 src/10.1.instancing.fs
 ---
-only one quad renders
+this code seems to be working
+tell me if this is a efficient approach for batch rendering
