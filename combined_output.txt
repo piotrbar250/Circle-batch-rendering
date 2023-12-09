@@ -1,86 +1,10 @@
-[100%] Built target app
-nowy boid
-malloc(): invalid size (unsorted)
-Aborted (core dumped)
-src/main.cpp
-
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <vector>
-#include "global.hpp"
-#include "Shader.h"
-#include "BoidsRenderer.h"
-#include "Boid.h"
-#include "Flock.h"
-using namespace std;
-
-int main()
-{
-
-    // return 0;
-    srand(time(NULL));
-    GLFWwindow* window;
-    if(!glfwInit())
-    {
-        return -1;
-    }
-
-    window = glfwCreateWindow(screenWidth, screenHeight, "Window!", NULL, NULL);
-
-    glfwMakeContextCurrent(window);
-
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Cound't load opengl" << std::endl;
-        glfwTerminate();
-        return -1; 
-    }
-
-    Shader shader("../src/10.1.instancing.vs", "../src/10.1.instancing.fs");
-    shader.use();
-    shader.setVec3("u_Color", glm::vec3(1.0f, 1.0f, 1.0f));
-
-    glm::mat4 projection = glm::ortho(0.0f, screenWidth, 0.0f, screenHeight); 
-    glm::mat4 model = glm::mat4(1.0f);
-
-    glm::mat4 mvp = projection * model;
-
-    shader.setMat4("u_mvp", mvp);
-
-    Flock flock(25);
-
-
-    int boidsCount = 25;
-    BoidsRenderer boidsRenderer(boidsCount, flock.translations);
-
-
-    while(!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-
-        flock.computeNextFrame();
-
-        boidsRenderer.clear();
-
-        boidsRenderer.update();
-
-        boidsRenderer.draw();
-        
-        glfwSwapBuffers(window);
-    }
-    glfwTerminate();
-    return 0;
-}
-
+all boids seem to be one circle
 src/Boid.h
 
 #pragma once
 #include <iostream>
+#include <vector>
+#include <stdexcept>
 #include <glm/glm.hpp>
 #include "global.hpp"
 using namespace std;
@@ -98,15 +22,25 @@ public:
     static float minSpeed;
     static float maxSpeed;
 
+public:
     Boid()
     {
-        cout << "nowy boid" << endl;
         position = start;
         velocity = {randomFloat(), randomFloat()};
+
+        if(glm::length(velocity) < 1)
+            velocity = vec2(1, 0);
+
+        velocity = glm::normalize(velocity);
     }
 
     void adjustVelocity()
     {
+        if(glm::length(velocity) == 0)
+        {
+            throw runtime_error("velocity == 0");
+        }
+
         if(glm::length(velocity) > maxSpeed)
         {
             velocity = glm::normalize(velocity);
@@ -122,9 +56,9 @@ public:
         }
     }
 
-    void computeAcceleration()
+    void bordersForce()
     {
-        float forceValue = 10.f;
+        float forceValue = BORDER_FORCE;
 
         if(position.x < RADIUS)
         {
@@ -142,7 +76,25 @@ public:
         {
             acceleration += vec2(0, -forceValue);
         }
-    }   
+    }  
+
+    void align(const vector<Boid>& neighs)
+    {
+        vec2 desired = vec2(0,0);
+        for(auto& boid : neighs)
+            desired += boid.velocity;
+        
+
+        desired /= neighs.size();
+
+        // acceleration += (desired - velocity);
+    }
+
+    void computeAcceleration(const vector<Boid>& neighs)
+    {
+        bordersForce();
+        align(neighs);
+    }
 
     void computeVelocity()
     {
@@ -154,19 +106,34 @@ public:
         position += velocity;
     }
 
-    void computeNextFrame()
+    void computeNextFrame(const vector<Boid>& neighs)
     {
         acceleration *= 0;
-        computeAcceleration();
+
+        computeAcceleration(neighs);
+
         computeVelocity();
+        adjustVelocity();
+
         computePosition();
-        translation = start - position;
+
+        translation = position - start;
+    }
+
+    // void computeNeighs()
+    // {
+    //     for(int )
+    // }
+
+    glm::vec2 getTranslation()
+    {
+        return translation;
     }
 };
 
 float Boid::maxSpeed = 5;
 float Boid::minSpeed = 1;
-vec2 Boid::start = vec2(500, 500);
+vec2 Boid::start = vec2(START_X, START_Y);
 
 src/Flock.h
 
@@ -193,140 +160,30 @@ public:
 
     void computeNextFrame()
     {   
-        int index = 0;
-        for(auto& boid: boids)
+        for(int i = 0; i < boidsCount; i++)
         {
-            boid.computeNextFrame();
-            translations[index++] = boid.translation;
+            Boid& boid = boids[i];
+            vector<Boid> neighs = getNeighs(i);
+            boid.computeNextFrame(neighs);
+            translations[i] = boid.getTranslation();;
         }
+    }
+
+    vector<Boid> getNeighs(int index)
+    {
+        vector<Boid> neighs;
+
+        for(int i = 0; i < boidsCount; i++)
+        {
+            if(i == index)
+                continue;
+            if(fabs(glm::length(boids[i].position - boids[index].position)) <= PERCEPTION)
+                neighs.push_back(boids[i]);
+        }
+        return move(neighs);
     }
 };
 
-src/BoidsRenderer.h
-
-#include <glad/glad.h>
-#include <iostream>
-#include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-using namespace std;
-using namespace glm;
-
-const float PI = 3.14159265359;
-
-int randomInt() {
-    return rand() % 15 - 5;
-}
-
-class Circle
-{
-public:
-    int numOfSegments;
-    float radius;
-    float cx;
-    float cy;
-
-    vector<float> vertices;
-
-    Circle(int numOfSegments = 50, float radius = 25, float cx = 100, float cy = 100)
-        : numOfSegments(numOfSegments), radius(radius), cx(cx), cy(cy)
-    {
-        float offset = 2 * PI / float(numOfSegments);
-        float angle = 0;
-
-        for (int i = 0; i < numOfSegments; i++)
-        {
-            float px = radius * cos(angle) + cx;
-            float py = radius * sin(angle) + cy;
-            vertices.push_back(px);
-            vertices.push_back(py);
-            angle += offset;
-        }
-    }
-};
-
-class BoidsRenderer
-{
-public:
-    unsigned int VAO;
-    unsigned int VBO;
-    unsigned int instanceVBO;
-
-    int boidsCount;
-    vector<glm::vec2>& translations;
-    Circle circle;
-
-    BoidsRenderer(int boidsCount, vector<glm::vec2>& translations) : boidsCount(boidsCount), translations(translations)
-    {
-        prepVertices();
-    }
-
-    void prepVertices()
-    {
-        circle = Circle();
-        translations.resize(boidsCount);
-
-        int index = 0;
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                glm::vec2 translation;
-                translation.x = x * 200;
-                translation.y = y * 200;
-                translations[index++] = translation;
-            }
-        }
-
-        glGenBuffers(1, &instanceVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), &translations[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, circle.vertices.size() * sizeof(float), circle.vertices.data(), GL_DYNAMIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribDivisor(1, 1);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    }
-
-    void update()
-    {
-        // for(int i = 0; i < boidsCount; i++)
-        // {
-        //     translations[i].x += randomInt();
-        //     translations[i].y += randomInt();
-        // }        
-        
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferSubData(GL_ARRAY_BUFFER,0, boidsCount * sizeof(glm::vec2), &translations[0]);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-
-    void draw()
-    {
-        glBindVertexArray(VAO);
-        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 50, boidsCount);
-        glBindVertexArray(0);
-    }
-
-    void clear()
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-};
 
 src/Shader.h
 
@@ -530,41 +387,21 @@ src/global.hpp
 
 const float screenWidth = 1000;
 const float screenHeight = 1000;
-const float RADIUS = 25;
+
+const float NUMBER_OF_SEGMENTS = 50;
+const float RADIUS = 10;
+const float START_X = 500;
+const float START_Y = 500;
+
+const float BORDER_FORCE = 10;
+const float PERCEPTION = 100;
+
+std::random_device rd;
+std::mt19937 eng(rd());
+
 float randomFloat() {
-    std::random_device rd;  // Obtain a random number from hardware
-    std::mt19937 eng(rd()); // Seed the generator
-    std::uniform_real_distribution<> distr(-1, 1); // Define the range
+    std::uniform_real_distribution<> distr(-3, 3);
 
     return distr(eng);
 }
-
-src/10.1.instancing.vs
-
-#version 460 core
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec2 translation;
-
-uniform mat4 u_mvp;
-
-void main()
-{
-    vec2 translatedPosition = position + translation;
-    gl_Position = u_mvp * vec4(translatedPosition, 0.0, 1.0);
-}
-
-
-src/10.1.instancing.fs
-
-#version 460 
-
-out vec4 screenColor;
-
-uniform vec3 u_Color;
-
-void main()
-{
-    screenColor = vec4(u_Color, 1.0);
-}
-
 

@@ -1,0 +1,13 @@
+src/main.cpp
+src/Boid.h
+src/Flock.h
+src/BoidsRenderer.h
+src/Shader.h
+src/global.hpp
+src/10.1.instancing.vs
+src/10.1.instancing.fs
+---
+[100%] Built target app
+nowy boid
+malloc(): invalid size (unsorted)
+Aborted (core dumped)

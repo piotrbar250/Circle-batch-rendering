@@ -21,11 +21,26 @@ public:
 
     void computeNextFrame()
     {   
-        int index = 0;
-        for(auto& boid: boids)
+        for(int i = 0; i < boidsCount; i++)
         {
-            boid.computeNextFrame();
-            translations[index++] = boid.getTranslation();;
+            Boid& boid = boids[i];
+            vector<Boid> neighs = getNeighs(i);
+            boid.computeNextFrame(neighs);
+            translations[i] = boid.getTranslation();;
         }
+    }
+
+    vector<Boid> getNeighs(int index)
+    {
+        vector<Boid> neighs;
+
+        for(int i = 0; i < boidsCount; i++)
+        {
+            if(i == index)
+                continue;
+            if(fabs(glm::length(boids[i].position - boids[index].position)) <= PERCEPTION)
+                neighs.push_back(boids[i]);
+        }
+        return move(neighs);
     }
 };
