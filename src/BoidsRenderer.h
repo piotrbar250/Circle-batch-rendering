@@ -3,15 +3,12 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "global.hpp"
 
 using namespace std;
 using namespace glm;
 
 const float PI = 3.14159265359;
-
-int randomInt() {
-    return rand() % 15 - 5;
-}
 
 class Circle
 {
@@ -23,7 +20,7 @@ public:
 
     vector<float> vertices;
 
-    Circle(int numOfSegments = 50, float radius = 25, float cx = 100, float cy = 100)
+    Circle(int numOfSegments = NUMBER_OF_SEGMENTS, float radius = RADIUS, float cx = START_X, float cy = START_Y)
         : numOfSegments(numOfSegments), radius(radius), cx(cx), cy(cy)
     {
         float offset = 2 * PI / float(numOfSegments);
@@ -48,34 +45,29 @@ public:
     unsigned int instanceVBO;
 
     int boidsCount;
-    vector<glm::vec2> translations;
+    vector<glm::vec2>& translations;
     Circle circle;
 
-    BoidsRenderer(int boidsCount) : boidsCount(boidsCount)
+    BoidsRenderer(int boidsCount, vector<glm::vec2>& translations) : boidsCount(boidsCount), translations(translations)
     {
         prepVertices();
+    }
+
+    ~BoidsRenderer()
+    {
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &instanceVBO);
+        glDeleteVertexArrays(1, &VAO);
     }
 
     void prepVertices()
     {
         circle = Circle();
-        translations.resize(boidsCount);
 
-        int index = 0;
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                glm::vec2 translation;
-                translation.x = x * 200;
-                translation.y = y * 200;
-                translations[index++] = translation;
-            }
-        }
 
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), &translations[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), &translations[0], GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glGenVertexArrays(1, &VAO);
@@ -83,7 +75,7 @@ public:
 
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, circle.vertices.size() * sizeof(float), circle.vertices.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, circle.vertices.size() * sizeof(float), circle.vertices.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
@@ -94,16 +86,12 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glVertexAttribDivisor(1, 1);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+        glBindVertexArray(0);
     }
 
     void update()
     {
-        for(int i = 0; i < boidsCount; i++)
-        {
-            translations[i].x += randomInt();
-            translations[i].y += randomInt();
-        }        
-        
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         glBufferSubData(GL_ARRAY_BUFFER,0, boidsCount * sizeof(glm::vec2), &translations[0]);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -112,7 +100,7 @@ public:
     void draw()
     {
         glBindVertexArray(VAO);
-        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 50, boidsCount);
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, NUMBER_OF_SEGMENTS, boidsCount);
         glBindVertexArray(0);
     }
 

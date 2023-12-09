@@ -6,27 +6,27 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "global.hpp"
 #include "Shader.h"
 #include "BoidsRenderer.h"
+#include "Boid.h"
+#include "Flock.h"
 using namespace std;
 
 int main()
 {
-    srand(time(NULL));
     GLFWwindow* window;
     if(!glfwInit())
     {
         return -1;
     }
 
-    float screenWidth = 1000;
-    float screenHeight = 1000;
-
     window = glfwCreateWindow(screenWidth, screenHeight, "Window!", NULL, NULL);
 
     glfwMakeContextCurrent(window);
-
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    // glfwSwapI;
+    return 0;
+        if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Cound't load opengl" << std::endl;
         glfwTerminate();
@@ -35,7 +35,7 @@ int main()
 
     Shader shader("../src/10.1.instancing.vs", "../src/10.1.instancing.fs");
     shader.use();
-    shader.setVec3("u_Color", glm::vec3(1.0f, 0.0f, 0.0f));
+    shader.setVec3("u_Color", glm::vec3(0.0f, 1.0f, 1.0f));
 
     glm::mat4 projection = glm::ortho(0.0f, screenWidth, 0.0f, screenHeight); 
     glm::mat4 model = glm::mat4(1.0f);
@@ -44,12 +44,16 @@ int main()
 
     shader.setMat4("u_mvp", mvp);
 
-    int boidsCount = 25;
-    BoidsRenderer boidsRenderer(boidsCount);
+    int boidsCount = 100;
+    Flock flock(boidsCount);
+
+    BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+
+        flock.computeNextFrame();
 
         boidsRenderer.clear();
 
