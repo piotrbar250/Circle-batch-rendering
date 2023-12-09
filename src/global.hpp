@@ -14,6 +14,7 @@ const float START_Y = 500;
 
 const float BORDER_FORCE = 10;
 const float PERCEPTION = 40;
+const float SLOWING_DISTANCE = 100;
 
 std::random_device rd;
 std::mt19937 eng(rd());
@@ -28,7 +29,8 @@ glm::vec2 limit(glm::vec2 v, float l)
 {
     if(glm::length(v) > l)
     {
-        v = glm::normalize(v) * l;
+        if(length(v) > 0)
+            v = glm::normalize(v) * l;
     }
     return v;
 }
