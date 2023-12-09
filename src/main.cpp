@@ -24,8 +24,8 @@ int main()
     window = glfwCreateWindow(screenWidth, screenHeight, "Window!", NULL, NULL);
 
     glfwMakeContextCurrent(window);
-    // glfwSwapI;
-    return 0;
+    glfwSwapInterval(1);
+
         if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Cound't load opengl" << std::endl;
