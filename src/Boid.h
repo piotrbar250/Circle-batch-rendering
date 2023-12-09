@@ -25,19 +25,23 @@ public:
 public:
     Boid()
     {
-        // vec2 tmp = {randomFloat(100, 700), randomFloat(100, 700)};
-        vec2 tmp = {200.0f, 800.0f};
+        vec2 realPosition = {randomFloat(100, 700), randomFloat(100, 700)};
+        // vec2 tmp = {200.0f, 800.0f};
 
-        initTranslation = tmp - start;
-        // cout << start.x << " " << start.y << endl; 
-        position = tmp;
+        initTranslation = realPosition - start;
+        position = realPosition;
 
         acceleration = vec2(0, 0);
-        // velocity = {randomFloat(-3, 3), randomFloat(-3, 3)};
-        velocity = {0.0f, -3.0f};
 
-        // if(glm::length(velocity) == 0)
-        //     velocity = vec2(1, 1);
+        velocity = {randomFloat(-3, 3), randomFloat(-3, 3)};
+        if(length(velocity) == 0)
+            velocity = vec2(1, 1);
+
+        velocity = setMagnitude(velocity, maxSpeed);
+
+        // velocity = setMagnitude(velocity, randomFloat(0.5, 1.5));
+        // velocity = {0.0f, -3.0f};
+
 
         // velocity = glm::normalize(velocity);
     }
@@ -46,8 +50,6 @@ public:
     {
         if(glm::length(velocity) == 0)
         {
-            // throw runtime_error("velocity == 0");
-            velocity *= 0;
             return;
         }
 
@@ -66,31 +68,19 @@ public:
         }
     }
 
-    vec2 bordersForce()
+    void antiBorderCollision()
     {
-        float forceValue = BORDER_FORCE;
-
         if(position.x < RADIUS)
-        {
-            return vec2(forceValue, 0);
-            // acceleration += vec2(forceValue, 0);
-        }
+            velocity.x *= (-1);
+
         if(position.x + RADIUS > screenWidth)
-        {
-            return vec2(-forceValue, 0);
-            // acceleration += vec2(-forceValue, 0);
-        }
+            velocity.x *= (-1);
+
         if(position.y < RADIUS)
-        {
-            return vec2(0, forceValue);
-            // acceleration += vec2(0, forceValue);
-        }
+            velocity.y *= (-1);
+
         if(position.y + RADIUS > screenHeight)
-        {
-            return vec2(0, -forceValue);;
-            // acceleration += vec2(0, forceValue);
-        }
-        return vec2(0,0);
+            velocity.y *= (-1);
     }  
 
     vec2 alignmentForce(const vector<Boid>& neighs)
@@ -145,11 +135,12 @@ public:
     void applyForces(const vector<Boid>& neighs)
     {
         acceleration *= 0;
+        antiBorderCollision();
         // acceleration = vec2
         // acceleration += alignmentForce(neighs);
         // acceleration += bordersForce();
         // acceleration += steeringForce();
-        acceleration += arrivesteeringForce();
+        // acceleration += arrivesteeringForce();
     }
  
     void computeNextFrame(const vector<Boid>& neighs)
@@ -160,7 +151,7 @@ public:
 
         position += velocity;
         
-        // adjustVelocity();
+        adjustVelocity();
 
         translation = position - start;
 
@@ -172,6 +163,33 @@ public:
     {
         return translation;
     }
+    
+    vec2 bordersForce()
+    {
+        float forceValue = BORDER_FORCE;
+
+        if(position.x < RADIUS)
+        {
+            return vec2(forceValue, 0);
+            // acceleration += vec2(forceValue, 0);
+        }
+        if(position.x + RADIUS > screenWidth)
+        {
+            return vec2(-forceValue, 0);
+            // acceleration += vec2(-forceValue, 0);
+        }
+        if(position.y < RADIUS)
+        {
+            return vec2(0, forceValue);
+            // acceleration += vec2(0, forceValue);
+        }
+        if(position.y + RADIUS > screenHeight)
+        {
+            return vec2(0, -forceValue);;
+            // acceleration += vec2(0, forceValue);
+        }
+        return vec2(0,0);
+    }  
 };
 
 float Boid::maxSpeed = 3;

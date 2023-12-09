@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include <iostream>
+#include <stdexcept>
 #include <glm/glm.hpp>
 
 
@@ -32,5 +33,15 @@ glm::vec2 limit(glm::vec2 v, float l)
         if(length(v) > 0)
             v = glm::normalize(v) * l;
     }
+    return v;
+}
+
+glm::vec2 setMagnitude(glm::vec2 v, float l)
+{
+    if(length(v) == 0)
+    {
+        throw std::runtime_error("sm_length(v) == 0");
+    }
+    v = glm::normalize(v) * l;
     return v;
 }

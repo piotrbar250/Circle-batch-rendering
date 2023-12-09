@@ -44,7 +44,7 @@ int main()
 
     shader.setMat4("u_mvp", mvp);
 
-    int boidsCount = 1;
+    int boidsCount = 100;
     Flock flock(boidsCount);
 
     BoidsRenderer boidsRenderer(boidsCount, flock.translations);
