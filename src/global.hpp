@@ -21,7 +21,6 @@ static std::random_device rd;
 static std::mt19937 eng(rd());
 
 inline float randomFloat(float l, float r) {
-
     std::uniform_real_distribution<> distr(l, r);
 
     return distr(eng);
