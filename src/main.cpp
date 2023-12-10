@@ -15,6 +15,7 @@ using namespace std;
 
 int main()
 {    
+    // exit(1);
     GLFWwindow* window;
     if(!glfwInit())
     {

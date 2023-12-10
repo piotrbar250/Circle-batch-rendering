@@ -25,7 +25,7 @@ public:
         {
             Boid& boid = boids[i];
             vector<Boid> neighs = getNeighs(i);
-            boid.computeNextFrame(neighs);
+            boid.computeNextFrame(i, neighs);
             translations[i] = boid.getTranslation();;
         }
     }

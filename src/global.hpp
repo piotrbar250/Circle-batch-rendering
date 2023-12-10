@@ -14,7 +14,7 @@ const float START_X = 500;
 const float START_Y = 500;
 
 const float BORDER_FORCE = 10;
-const float PERCEPTION = 40;
+const float PERCEPTION = 50;
 const float SLOWING_DISTANCE = 100;
 
 std::random_device rd;
@@ -41,6 +41,7 @@ glm::vec2 setMagnitude(glm::vec2 v, float l)
     if(length(v) == 0)
     {
         throw std::runtime_error("sm_length(v) == 0");
+        // return v;
     }
     v = glm::normalize(v) * l;
     return v;
