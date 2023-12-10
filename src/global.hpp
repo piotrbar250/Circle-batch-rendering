@@ -17,6 +17,10 @@ const float BORDER_FORCE = 10;
 const float PERCEPTION = 50;
 const float SLOWING_DISTANCE = 100;
 
+const float MIN_SPEED = 0.0f;
+const float MAX_SPEED = 4.0f;
+const float MAX_FORCE = 1.0f;
+
 static std::random_device rd;
 static std::mt19937 eng(rd());
 

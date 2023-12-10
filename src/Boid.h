@@ -19,9 +19,9 @@ public:
 
     glm::vec2 initTranslation;
 
-    static inline float minSpeed = 0.0f;
-    static inline float maxSpeed = 4.0f;
-    static inline float maxForce = 0.2f;
+    static inline float minSpeed = MIN_SPEED;
+    static inline float maxSpeed = MAX_SPEED;
+    static inline float maxForce = MAX_FORCE;
     static inline glm::vec2 start = glm::vec2(START_X, START_Y);
 
 public:
@@ -71,6 +71,42 @@ public:
         return steeringForce(target);
     }
 
+    vec2 cohesionForce(const vector<Boid> &neighs)
+    {
+        vec2 target = vec2(0, 0);
+        for (auto &boid : neighs)
+            target += boid.position;
+
+        if (neighs.size() > 0)
+            target /= neighs.size();
+        else
+            target = position;
+
+        return steeringForce(target - position); 
+    }
+
+    vec2 separationForce(const vector<Boid> &neighs)
+    {
+        vec2 target = vec2(0, 0);
+        for (auto &boid : neighs)
+        {
+            vec2 offset = position - boid.position;
+            if(length(offset) == 0)
+                continue;
+
+            // vec2 value = normalize(offset) * (1 / length(offset));
+            vec2 value = offset * (1 / length(offset));
+            target += value;
+        }    
+
+        if (neighs.size() > 0)
+            target /= neighs.size();
+        else
+            return vec2(0,0);
+
+        return steeringForce(target); 
+    }
+
     vec2 steeringForce(vec2 target)
     {
         vec2 targetOffset = target;
@@ -92,6 +128,8 @@ public:
     {
         acceleration *= 0;
         acceleration += alignmentForce(neighs);
+        acceleration += (cohesionForce(neighs));
+        acceleration += (separationForce(neighs));
     }
 
     void computeNextFrame(int index, const vector<Boid> &neighs)
@@ -107,6 +145,13 @@ public:
         antiBorderCollision();
 
         translation = position - start;
+
+        static float mx = 0;
+        if(length(velocity) > mx)
+        {
+            mx = length(velocity);
+            cout << mx << endl;
+        }
     }
 
     void adjustVelocity();
