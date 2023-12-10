@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
@@ -26,7 +27,7 @@ public:
             Boid& boid = boids[i];
             vector<Boid> neighs = getNeighs(i);
             boid.computeNextFrame(i, neighs);
-            translations[i] = boid.getTranslation();;
+            translations[i] = boid.translation;
         }
     }
 
