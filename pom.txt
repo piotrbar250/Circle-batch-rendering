@@ -1,117 +1,31 @@
-#pragma once
-#include <iostream>
-#include <vector>
-#include <glm/glm.hpp>
-#include "../global.hpp"
-#include "Boid.h"
-using namespace std;
-using namespace glm;
-
-class Flock
-{
-public:
-    int boidsCount;
-    vector<Boid> boids;
-    vector<glm::vec2> translations;
-
-    Flock(int boidsCount) : boidsCount(boidsCount)
+    bool checkNeighbour(int gid, int neighIndex, vec2* positions)
     {
-        boids.resize(boidsCount);
-        translations.resize(boidsCount);
-    }
-
-    void computeNextFrame()
-    {   
-        for(int i = 0; i < boidsCount; i++)
-        {
-            Boid& boid = boids[i];
-            vector<Boid> neighs = getNeighs(i);
-            boid.computeNextFrame(i, neighs);
-            translations[i] = boid.translation;
-        }
-    }
-
-    vector<Boid> getNeighs(int index)
-    {
-        vector<Boid> neighs;
-
-        for(int i = 0; i < boidsCount; i++)
-        {
-            if(i == index)
-                continue;
-            if(fabs(glm::length(boids[i].position - boids[index].position)) <= PERCEPTION)
-                neighs.push_back(boids[i]);
-        }
-        return move(neighs);
-    }
-};
-
-
-#pragma once
-#include <iostream>
-#include <vector>
-#include <glm/glm.hpp>
-#include "../global.hpp"
-#include "BoidGPU.h"
-
-using namespace std;
-using namespace glm;
-
-class FlockGPU
-{
-public:
-    int boidsCount;
-    vector<vec2> positions;
-    vector<vec2> accelerations;
-    vector<vec2> velocities;
-    vector<vec2> translations;
-    vector<vec2> initTranslations;
-
-    static inline float minSpeed = MIN_SPEED;
-    static inline float maxSpeed = MAX_SPEED;
-    static inline float maxForce = MAX_FORCE;
-    static inline glm::vec2 start = glm::vec2(START_X, START_Y);
-
-    FlockGPU(int boidsCount) : boidsCount(boidsCount)
-    {
-        positions.resize(boidsCount);
-        velocities.resize(boidsCount);
-
-        for(int i = 0; i < boidsCount; i++)
-        {
-            positions[i] = {randomFloat(100, 700), randomFloat(100, 700)};
-            initTranslations[i] = positions[i] - start;
-            
-            accelerations[i] = vec2(0, 0);
-            
-            velocities[i] = {randomFloat(-3, 3), randomFloat(-3, 3)};
-            if (length(velocities[i]) == 0)
-                velocities[i] = vec2(1, 1);
-
-            velocities[i] = setMagnitude(velocities[i], maxSpeed);
-        }
+        if(gid == neighIndex)
+            return false;
+        if(fabs(glm::length(positions[gid] - positions[neighIndex])) <= PERCEPTION)
+            return true;
+        return false;
     }    
-
-    void computeNextFrame()
-    {
-        for(int i = 0; i < boidsCount; i++)
-        {
-            vector<int> neighs = getNeighs(i);
-            BoidGPU::computeNextFrame(i, neighs.size(), neighs.data(), positions.data(), velocities.data(), accelerations.data(), translations.data());
-        }
-    }
     
-    vector<int> getNeighs(int index)
+    vec2 alignmentForce(int gid, int boidsCount, vec2* positions, vec2* velocities)
     {
-        vector<int> neighs;
+        // consider changing to int** neighsIndices very important
+        // consider saving result in alignmentForce 
+        vec2 target = vec2(0, 0);
+        int neighsCount = 0;
 
         for(int i = 0; i < boidsCount; i++)
         {
-            if(i == index)
-                continue;
-            if(fabs(glm::length(positions[i] - positions[index])) <= PERCEPTION)
-                neighs.push_back(i);
+            if(checkNeighbour(gid, i, positions))
+            {
+                target += velocities[i];
+                neighsCount++;
+            }
         }
-        return move(neighs);
+        if (neighsCount > 0)
+            target /= neighsCount;
+        else
+            target = velocities[gid];
+
+        return steeringForce(target, velocities[gid]);
     }
-};

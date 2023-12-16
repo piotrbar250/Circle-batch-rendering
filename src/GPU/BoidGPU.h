@@ -17,9 +17,18 @@ namespace BoidGPU
         rearrange kernel parameters
     */
 
-    void antiBorderCollisionThrough(int gid, vec2* positions)
+    bool checkNeighbour(int gid, int neighIndex, vec2 *positions)
     {
-        vec2& position = positions[gid];
+        if (gid == neighIndex)
+            return false;
+        if (fabs(glm::length(positions[gid] - positions[neighIndex])) <= PERCEPTION)
+            return true;
+        return false;
+    }
+
+    void antiBorderCollisionThrough(int gid, vec2 *positions)
+    {
+        vec2 &position = positions[gid];
 
         if (position.x < RADIUS)
             position.x = screenWidth - RADIUS;
@@ -33,7 +42,7 @@ namespace BoidGPU
         if (position.y + RADIUS > screenHeight)
             position.y = RADIUS;
     }
-    
+
     vec2 steeringForce(vec2 target, vec2 velocity)
     {
         // limit, normalize should prepared for the device !!!!!!
@@ -52,16 +61,21 @@ namespace BoidGPU
         return steeringForce;
     }
 
-    vec2 alignmentForce(int gid, int neighsCount, int* neighsIndices, vec2* positions, vec2* velocities)
+    vec2 alignmentForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
     {
-        // consider changing to int** neighsIndices very important
-        // consider saving result in alignmentForce 
+        // consider saving result in alignmentForce
         vec2 target = vec2(0, 0);
+        int neighsCount = 0;
 
-        for(int i = 0; i < neighsCount; i++)
-            target += velocities[neighsIndices[i]];
-
-        if (neighsCount> 0)
+        for (int i = 0; i < boidsCount; i++)
+        {
+            if (checkNeighbour(gid, i, positions))
+            {
+                target += velocities[i];
+                neighsCount++;
+            }
+        }
+        if (neighsCount > 0)
             target /= neighsCount;
         else
             target = velocities[gid];
@@ -69,15 +83,20 @@ namespace BoidGPU
         return steeringForce(target, velocities[gid]);
     }
 
-    vec2 cohesionForce(int gid, int neighsCount, int* neighsIndices, vec2* positions, vec2* velocities)
+    vec2 cohesionForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
     {
-        // consider changing to int** neighsIndices
         vec2 target = vec2(0, 0);
+        int neighsCount = 0;
 
-        for(int i = 0; i < neighsCount; i++)
-            target += positions[neighsIndices[i]];
-
-        if (neighsCount> 0)
+        for (int i = 0; i < boidsCount; i++)
+        {
+            if (checkNeighbour(gid, i, positions))
+            {
+                target += positions[i];
+                neighsCount++;
+            }
+        }
+        if (neighsCount > 0)
             target /= neighsCount;
         else
             target = positions[gid];
@@ -85,38 +104,46 @@ namespace BoidGPU
         return steeringForce(target - positions[gid], velocities[gid]);
     }
 
-    vec2 separationForce(int gid, int neighsCount, int* neighsIndices, vec2* positions, vec2* velocities)
+    vec2 separationForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
     {
-        // consider changing to int** neighsIndices
+        // review force computation
         vec2 target = vec2(0, 0);
-        for(int i = 0; i < neighsCount; i++)
-        {
-            vec2 offset = positions[gid] - positions[neighsIndices[i]];
-            if(length(offset) == 0)
-                continue;
-            vec2 value = offset * (1 / length(offset));
-            target += value;
-        }    
+        int neighsCount = 0;
 
-        if (neighsCount> 0)
+        for (int i = 0; i < boidsCount; i++)
+        {
+            if (checkNeighbour(gid, i, positions))
+            {
+                vec2 offset = positions[gid] - positions[i];
+                if (length(offset) == 0)
+                    continue;
+
+                // value = normalize(offset) * (1 / length(offset));
+                vec2 value = offset * (1 / length(offset));
+                target += value;
+                neighsCount++;
+            }
+        }
+
+        if (neighsCount > 0)
             target /= neighsCount;
         else
-            return vec2(0,0);
+            return vec2(0, 0);
 
-        return steeringForce(target, velocities[gid]); 
+        return steeringForce(target, velocities[gid]);
     }
 
-    void applyForces(int gid, int neighsCount, int* neighsIndices, vec2* positions, vec2* velocities, vec2* accelerations)
+    void applyForces(int gid, int boidsCount, vec2 *positions, vec2 *velocities, vec2 *accelerations)
     {
         accelerations[gid] *= 0;
-        accelerations[gid] += alignmentForce(gid, neighsCount, neighsIndices, positions, velocities);
-        accelerations[gid] += (cohesionForce(gid, neighsCount, neighsIndices, positions, velocities));
-        accelerations[gid] += (separationForce(gid, neighsCount, neighsIndices, positions, velocities));
+        accelerations[gid] += alignmentForce(gid, boidsCount, positions, velocities);
+        accelerations[gid] += (cohesionForce(gid, boidsCount, positions, velocities));
+        accelerations[gid] += (separationForce(gid, boidsCount, positions, velocities));
     }
 
-    void computeNextFrame(int gid, int neighsCount, int* neighsIndices, vec2* positions, vec2* velocities, vec2* accelerations, vec2* translations)
+    void computeNextFrame(int gid, int boidsCount, vec2 *positions, vec2 *velocities, vec2 *accelerations, vec2 *translations)
     {
-        applyForces(gid, neighsCount, neighsIndices, positions, velocities, accelerations);
+        applyForces(gid, boidsCount, positions, velocities, accelerations);
         velocities[gid] += accelerations[gid];
 
         positions[gid] += velocities[gid];

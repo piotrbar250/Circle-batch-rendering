@@ -26,7 +26,6 @@ public:
     FlockGPU(int boidsCount) : boidsCount(boidsCount)
     {
         positions.resize(boidsCount);
-        velocities.resize(boidsCount);
         accelerations.resize(boidsCount);
         velocities.resize(boidsCount);
         translations.resize(boidsCount);
@@ -35,7 +34,7 @@ public:
         for(int i = 0; i < boidsCount; i++)
         {
             positions[i] = {randomFloat(100, 700), randomFloat(100, 700)};
-            initTranslations[i] = positions[i] - start;
+            initTranslations[i] = positions[i] - START;
             
             accelerations[i] = vec2(0, 0);
             
@@ -43,7 +42,7 @@ public:
             if (length(velocities[i]) == 0)
                 velocities[i] = vec2(1, 1);
 
-            velocities[i] = setMagnitude(velocities[i], maxSpeed);
+            velocities[i] = setMagnitude(velocities[i], MAX_SPEED);
         }
     }    
 
@@ -51,22 +50,7 @@ public:
     {
         for(int i = 0; i < boidsCount; i++)
         {
-            vector<int> neighs = getNeighs(i);
-            BoidGPU::computeNextFrame(i, neighs.size(), neighs.data(), positions.data(), velocities.data(), accelerations.data(), translations.data());
+            BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), translations.data());
         }
-    }
-    
-    vector<int> getNeighs(int index)
-    {
-        vector<int> neighs;
-
-        for(int i = 0; i < boidsCount; i++)
-        {
-            if(i == index)
-                continue;
-            if(fabs(glm::length(positions[i] - positions[index])) <= PERCEPTION)
-                neighs.push_back(i);
-        }
-        return move(neighs);
     }
 };
