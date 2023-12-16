@@ -17,7 +17,7 @@ namespace BoidGPU
         rearrange kernel parameters
     */
 
-    bool checkNeighbour(int gid, int neighIndex, vec2 *positions)
+    bool checkNeighbour(int gid, int neighIndex, const vec2 *positions)
     {
         if (gid == neighIndex)
             return false;
@@ -26,9 +26,9 @@ namespace BoidGPU
         return false;
     }
 
-    void antiBorderCollisionThrough(int gid, vec2 *positions)
+    void antiBorderCollisionThrough(int gid, vec2 *newPositions)
     {
-        vec2 &position = positions[gid];
+        vec2 &position = newPositions[gid];
 
         if (position.x < RADIUS)
             position.x = screenWidth - RADIUS;
@@ -57,11 +57,10 @@ namespace BoidGPU
             vec2 steeringVelocity = desiredVelocity - velocity;
             steeringForce = limit(steeringVelocity, MAX_FORCE);
         }
-
         return steeringForce;
     }
 
-    vec2 alignmentForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
+    vec2 alignmentForce(int gid, int boidsCount, const vec2 *positions, const vec2 *velocities)
     {
         // consider saving result in alignmentForce
         vec2 target = vec2(0, 0);
@@ -83,7 +82,7 @@ namespace BoidGPU
         return steeringForce(target, velocities[gid]);
     }
 
-    vec2 cohesionForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
+    vec2 cohesionForce(int gid, int boidsCount, const vec2 *positions, const vec2 *velocities)
     {
         vec2 target = vec2(0, 0);
         int neighsCount = 0;
@@ -104,7 +103,7 @@ namespace BoidGPU
         return steeringForce(target - positions[gid], velocities[gid]);
     }
 
-    vec2 separationForce(int gid, int boidsCount, vec2 *positions, vec2 *velocities)
+    vec2 separationForce(int gid, int boidsCount, const vec2 *positions, const vec2 *velocities)
     {
         // review force computation
         vec2 target = vec2(0, 0);
@@ -133,7 +132,7 @@ namespace BoidGPU
         return steeringForce(target, velocities[gid]);
     }
 
-    void applyForces(int gid, int boidsCount, vec2 *positions, vec2 *velocities, vec2 *accelerations)
+    void applyForces(int gid, int boidsCount, const vec2 *positions, const vec2 *velocities, vec2 *accelerations)
     {
         accelerations[gid] *= 0;
         accelerations[gid] += alignmentForce(gid, boidsCount, positions, velocities);
@@ -141,15 +140,21 @@ namespace BoidGPU
         accelerations[gid] += (separationForce(gid, boidsCount, positions, velocities));
     }
 
-    void computeNextFrame(int gid, int boidsCount, vec2 *positions, vec2 *velocities, vec2 *accelerations, vec2 *translations)
+    void computeNextFrame(int gid, int boidsCount, vec2 *positions, vec2 *velocities, vec2 *accelerations, vec2* newPositions, vec2* newVelocities, vec2 *translations)
     {
         applyForces(gid, boidsCount, positions, velocities, accelerations);
-        velocities[gid] += accelerations[gid];
+        newVelocities[gid] = velocities[gid] + accelerations[gid];
 
-        positions[gid] += velocities[gid];
+        newPositions[gid] = positions[gid] + velocities[gid];
 
-        antiBorderCollisionThrough(gid, positions);
+        antiBorderCollisionThrough(gid, newPositions);
 
-        translations[gid] = positions[gid] - START;
+        translations[gid] = newPositions[gid] - START;
+    }
+
+    void swapFrames(int gid, vec2 *positions, vec2 *velocities, vec2* newPositions, vec2* newVelocities)
+    {
+        positions[gid] = newPositions[gid];
+        velocities[gid] = newVelocities[gid];
     }
 }

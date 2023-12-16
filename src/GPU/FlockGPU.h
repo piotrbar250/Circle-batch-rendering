@@ -16,12 +16,9 @@ public:
     vector<vec2> accelerations;
     vector<vec2> velocities;
     vector<vec2> translations;
-    vector<vec2> initTranslations;
 
-    static inline float minSpeed = MIN_SPEED;
-    static inline float maxSpeed = MAX_SPEED;
-    static inline float maxForce = MAX_FORCE;
-    static inline glm::vec2 start = glm::vec2(START_X, START_Y);
+    vector<vec2> newPositions;
+    vector<vec2> newVelocities;
 
     FlockGPU(int boidsCount) : boidsCount(boidsCount)
     {
@@ -29,12 +26,12 @@ public:
         accelerations.resize(boidsCount);
         velocities.resize(boidsCount);
         translations.resize(boidsCount);
-        initTranslations.resize(boidsCount);
-        
+        newPositions.resize(boidsCount);
+        newVelocities.resize(boidsCount);
+
         for(int i = 0; i < boidsCount; i++)
         {
             positions[i] = {randomFloat(100, 700), randomFloat(100, 700)};
-            initTranslations[i] = positions[i] - START;
             
             accelerations[i] = vec2(0, 0);
             
@@ -50,7 +47,8 @@ public:
     {
         for(int i = 0; i < boidsCount; i++)
         {
-            BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), translations.data());
+            BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), newPositions.data(), newVelocities.data(), translations.data());
+            BoidGPU::swapFrames(i, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
         }
     }
 };
