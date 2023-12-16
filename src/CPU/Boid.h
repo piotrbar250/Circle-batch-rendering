@@ -3,7 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <glm/glm.hpp>
-#include "global.hpp"
+#include "../global.hpp"
 
 using namespace std;
 using namespace glm;

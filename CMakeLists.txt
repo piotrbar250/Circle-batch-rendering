@@ -8,8 +8,9 @@ find_package(OpenGL REQUIRED)
 
 add_executable(app
     src/main.cpp
+    src/mainGPU.cpp
     src/glad.c
-    src/Boid.cpp
+    src/CPU/Boid.cpp  
     src/global.hpp
 )
 

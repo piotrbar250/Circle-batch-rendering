@@ -1,4 +1,4 @@
-#include "global.hpp" 
+#include "../global.hpp" 
 #include "Boid.h"
 
 void Boid::adjustVelocity()

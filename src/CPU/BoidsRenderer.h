@@ -4,7 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "global.hpp"
+#include "../global.hpp"
 
 using namespace std;
 using namespace glm;

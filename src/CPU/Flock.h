@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
-#include "global.hpp"
+#include "../global.hpp"
 #include "Boid.h"
 using namespace std;
 using namespace glm;
