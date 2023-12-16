@@ -12,6 +12,7 @@ const float NUMBER_OF_SEGMENTS = 50;
 const float RADIUS = 10;
 const float START_X = 500;
 const float START_Y = 500;
+const glm::vec2 START = {START_X, START_Y};
 
 const float BORDER_FORCE = 10;
 const float PERCEPTION = 50;

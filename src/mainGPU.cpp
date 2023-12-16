@@ -11,6 +11,8 @@
 #include "CPU/BoidsRenderer.h"
 #include "CPU/Boid.h"
 #include "CPU/Flock.h"
+
+#include "GPU/FlockGPU.h"
 using namespace std;
 
 int main()
@@ -45,16 +47,22 @@ int main()
 
     shader.setMat4("u_mvp", mvp);
 
-    int boidsCount = 100;
-    Flock flock(boidsCount);
+    // Computational part begins
 
-    BoidsRenderer boidsRenderer(boidsCount, flock.translations);
+    int boidsCount = 100;
+    // Flock flock(boidsCount);
+    // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
+    
+
+    FlockGPU flockGPU(boidsCount);
+    BoidsRenderer boidsRenderer(boidsCount, flockGPU.translations);
 
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        flock.computeNextFrame();
+        // flock.computeNextFrame();
+        flockGPU.computeNextFrame();
 
         boidsRenderer.clear();
 
