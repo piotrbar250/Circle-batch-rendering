@@ -51,30 +51,19 @@ public:
             velocities[i] = setMagnitude(velocities[i], MAX_SPEED);   
         }
 
-        allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
-        sendDataToGPUinit(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
+        cuda_functions::allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
+        cuda_functions::sendDataToGPU(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
     }
 
-    // ~FlockGPU()
-    // {
-    //     freeDataOnGPU(device_positions, device_velocities, device_newPositions, device_newVelocities);
-    // }
+    ~FlockGPU()
+    {
+        cuda_functions::freeDataOnGPU(device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
+    }
 
     void computeNextFrame()
     {
-        computeNextFrameInit(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
-        swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
-        getDataFromGPUinit(boidsCount, device_translations, translations.data());
-
-        // for (int i = 0; i < boidsCount; i++)
-        // {
-        //     BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), newPositions.data(), newVelocities.data(), translations.data());
-        //     // BoidGPU::swapFrames(i, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
-        // }
-        // sendData2(boidsCount, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
-
-        // sendDataToGPU(boidsCount, device_newPositions, device_newVelocities, newPositions.data(), newVelocities.data());
-        // swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
-        // getDataFromGPU(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
+        cuda_functions::computeNextFrameInit(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
+        cuda_functions::swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
+        cuda_functions::getDataFromGPU(boidsCount, device_translations, translations.data());
     }
 };
