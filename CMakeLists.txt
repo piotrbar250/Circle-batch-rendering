@@ -54,6 +54,7 @@ add_executable(app
     src/glad.c
     src/CPU/Boid.cpp  
     src/GPU/BoidKernel.cu
+    src/GPU/BoidsMemoryManagement.cu
     src/global.hpp
 )
 

@@ -24,9 +24,10 @@ public:
 
     glm::vec2* device_positions;
     glm::vec2* device_velocities;
-
     glm::vec2* device_newPositions;
     glm::vec2* device_newVelocities;
+    glm::vec2* device_accelerations;
+    glm::vec2* device_translations;
 
     FlockGPU(int boidsCount) : boidsCount(boidsCount)
     {
@@ -50,7 +51,8 @@ public:
             velocities[i] = setMagnitude(velocities[i], MAX_SPEED);   
         }
 
-        allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
+        allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
+        sendDataToGPUinit(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
     }
 
     // ~FlockGPU()
@@ -60,13 +62,17 @@ public:
 
     void computeNextFrame()
     {
-        
-        for (int i = 0; i < boidsCount; i++)
-        {
-            BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), newPositions.data(), newVelocities.data(), translations.data());
-            // BoidGPU::swapFrames(i, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
-        }
-        sendData2(boidsCount, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
+        computeNextFrameInit(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
+        swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
+        getDataFromGPUinit(boidsCount, device_translations, translations.data());
+
+        // for (int i = 0; i < boidsCount; i++)
+        // {
+        //     BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), newPositions.data(), newVelocities.data(), translations.data());
+        //     // BoidGPU::swapFrames(i, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
+        // }
+        // sendData2(boidsCount, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
+
         // sendDataToGPU(boidsCount, device_newPositions, device_newVelocities, newPositions.data(), newVelocities.data());
         // swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
         // getDataFromGPU(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
