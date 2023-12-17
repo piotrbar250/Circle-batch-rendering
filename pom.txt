@@ -1,26 +1,98 @@
+class FlockGPU
+{
+public:
+    int boidsCount;
+    vector<vec2> positions;
+    vector<vec2> accelerations;
+    vector<vec2> velocities;
+    vector<vec2> translations;
 
-cmake_minimum_required(VERSION 3.0.0) #deleted
-project(app VERSION 0.1.0)
-enable_language(CUDA)
+    vector<vec2> newPositions;
+    vector<vec2> newVelocities;
 
 
-cmake_policy(SET CMP0072 NEW)
-find_package(OpenGL REQUIRED)
+    glm::vec2* device_positions;
+    glm::vec2* device_velocities;
 
-add_executable(app
-    src/main.cpp
-    src/mainGPU.cpp
-    src/glad.c
-    src/CPU/Boid.cpp  
-    src/GPU/BoidKernel.cu
-    src/global.hpp
-)
+    glm::vec2* device_newPositions;
+    glm::vec2* device_newVelocities;
 
-target_link_libraries(app
-    glfw
-    OpenGL::GL
-)
-set_target_properties(app PROPERTIES
-                      CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(app PROPERTIES
-                      CUDA_ARCHITECTURES "50") # Replace with your GPU's compute capability
+    FlockGPU(int boidsCount) : boidsCount(boidsCount)
+    {
+        positions.resize(boidsCount);
+        accelerations.resize(boidsCount);
+        velocities.resize(boidsCount);
+        translations.resize(boidsCount);
+        newPositions.resize(boidsCount);
+        newVelocities.resize(boidsCount);
+
+        for (int i = 0; i < boidsCount; i++)
+        {
+            positions[i] = {randomFloat(100, 700), randomFloat(100, 700)};
+
+            accelerations[i] = vec2(0, 0);
+
+            velocities[i] = {randomFloat(-3, 3), randomFloat(-3, 3)};
+            if (length(velocities[i]) == 0)
+                velocities[i] = vec2(1, 1);
+
+            velocities[i] = setMagnitude(velocities[i], MAX_SPEED);   
+        }
+
+        // allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
+    }
+
+    ~FlockGPU()
+    {
+        freeDataOnGPU(device_positions, device_velocities, device_newPositions, device_newVelocities);
+    }
+
+    void computeNextFrame()
+    {
+        
+        for (int i = 0; i < boidsCount; i++)
+        {
+            BoidGPU::computeNextFrame(i, boidsCount, positions.data(), velocities.data(), accelerations.data(), newPositions.data(), newVelocities.data(), translations.data());
+            // BoidGPU::swapFrames(i, positions.data(), velocities.data(), newPositions.data(), newVelocities.data());
+        }
+        sendDataToGPU(boidsCount, device_newPositions, device_newVelocities, newPositions.data(), newVelocities.data());
+        getDataFromGPU(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
+
+        swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
+    }
+};
+
+
+#ifndef CUDA_FUNCTIONS_H
+#define CUDA_FUNCTIONS_H
+
+#include <glm/glm.hpp>
+
+void allocateDataOnGPU(int boidsCount, glm::vec2*& device_positions, glm::vec2*& device_velocities, glm::vec2*& device_newPositions, glm::vec2*& device_newVelocities);
+void freeDataOnGPU(glm::vec2* device_positions, glm::vec2* device_velocities, glm::vec2* device_newPositions, glm::vec2* device_newVelocities);
+
+void sendDataToGPU(int boidsCount, glm::vec2* device_newPositions, glm::vec2* device_newVelocities, glm::vec2* host_newPositions, glm::vec2* host_newVelocities);
+void getDataFromGPU(int boidsCount, glm::vec2* device_positions, glm::vec2* device_velocities, glm::vec2* host_positions, glm::vec2* host_velocities);
+
+void swapFrames(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2* newPositions, glm::vec2* newVelocities);
+void sendData(int boidsCount, glm::vec2* host_positions, glm::vec2* host_velocities, glm::vec2* host_newPositions, glm::vec2* host_newVelocities);
+
+#endif
+
+void sendDataToGPU(int boidsCount, glm::vec2* device_newPositions, glm::vec2* device_newVelocities, glm::vec2* host_newPositions, glm::vec2* host_newVelocities)
+{
+    cudaMemcpy(device_newPositions, host_newPositions, boidsCount * sizeof(glm::vec2), cudaMemcpyHostToDevice);
+    cudaMemcpy(device_newVelocities, host_newVelocities, boidsCount * sizeof(glm::vec2), cudaMemcpyHostToDevice);
+}
+
+piotrbar@piotrbar-HP-Pavilion-Laptop-15-ck0xx:~/Desktop/OPENGL/Batch-rendering/build$ make
+Consolidate compiler generated dependencies of target app
+[ 14%] Building CXX object CMakeFiles/app.dir/src/mainGPU.cpp.o
+[ 28%] Linking CUDA device code CMakeFiles/app.dir/cmake_device_link.o
+[ 42%] Linking CXX executable app
+/usr/bin/ld: CMakeFiles/app.dir/src/mainGPU.cpp.o: in function `FlockGPU::computeNextFrame()':
+mainGPU.cpp:(.text._ZN8FlockGPU16computeNextFrameEv[_ZN8FlockGPU16computeNextFrameEv]+0x112): undefined reference to `sendDataToGPU(int, glm::vec<2, float, (glm::qualifier)0>*, glm::vec<2, float, (glm::qualifier)0>*, glm::vec<2, float, (glm::qualifier)0>*, glm::vec<2, float, (glm::qualifier)0>*)'
+collect2: error: ld returned 1 exit status
+make[2]: *** [CMakeFiles/app.dir/build.make:191: app] Error 1
+make[1]: *** [CMakeFiles/Makefile2:83: CMakeFiles/app.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
