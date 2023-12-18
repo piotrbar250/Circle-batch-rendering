@@ -46,7 +46,7 @@ public:
     unsigned int VBO;
     unsigned int instanceVBO;
     // unsigned int cuda_vbo_resource;
-    void* cuda_vbo_resource;
+    void* cuda_vbo_resource; // let it be cudaGraphicsResource
 
     int boidsCount;
     vector<glm::vec2>& translations;
@@ -86,7 +86,7 @@ public:
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-        
+
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);

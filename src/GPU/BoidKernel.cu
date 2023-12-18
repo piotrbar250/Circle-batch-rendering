@@ -190,6 +190,12 @@ namespace cuda_functions
 
     void swapFrames(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2 *newPositions, glm::vec2 *newVelocities)
     {
+        // typedef __device_builtin__ struct cudaGraphicsResource *cudaGraphicsResource_t;
+        
+        cudaGraphicsResource_t ptrr;
+
+        int64_t l;
+        
         int threadsPerBlock = 256;
         int blocksPerGrid = boidsCount / threadsPerBlock + 1;
 

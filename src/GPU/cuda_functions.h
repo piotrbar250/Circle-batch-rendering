@@ -21,5 +21,7 @@ namespace cuda_functions
 
     glm::vec2* getMappedPointer(void **cuda_vbo_resource);
     void unmapResource(void **cuda_vbo_resource);
+    glm::vec2 *getMappedPointerV2(unsigned int instanceVBO);
+    glm::vec2 *getMappedPointerV3(void*& cuda_vbo_resource);
 }
 #endif

@@ -67,7 +67,9 @@ int main()
         glfwPollEvents();
 
         // flock.computeNextFrame();
-        flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));
+        // flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));
+        flockGPU.computeNextFrameV3(boidsRenderer.cuda_vbo_resource);
+        flockGPU.debug(boidsRenderer.instanceVBO);
 
         boidsRenderer.clear();
 
