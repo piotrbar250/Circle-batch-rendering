@@ -171,15 +171,18 @@ namespace cuda_functions
     __global__ void computeNextFrameKernel(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2 *newPositions, glm::vec2 *newVelocities, glm::vec2 *accelerations, glm::vec2 *translations)
     {
         int gid = blockIdx.x * blockDim.x + threadIdx.x;
-        applyForces(gid, boidsCount, positions, velocities, accelerations);
-        newVelocities[gid] = velocities[gid] + accelerations[gid];
+        if (gid < boidsCount)
+        {
+            applyForces(gid, boidsCount, positions, velocities, accelerations);
+            newVelocities[gid] = velocities[gid] + accelerations[gid];
 
-        newPositions[gid] = positions[gid] + velocities[gid];
+            newPositions[gid] = positions[gid] + velocities[gid];
 
-        antiBorderCollisionThrough(gid, newPositions);
+            antiBorderCollisionThrough(gid, newPositions);
 
-        // translations[gid] = newPositions[gid] - START;
-        translations[gid] = newPositions[gid] - glm::vec2(START_X, START_Y);
+            // translations[gid] = newPositions[gid] - START;
+            translations[gid] = newPositions[gid] - glm::vec2(START_X, START_Y);
+        }
     }
 
     void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations)

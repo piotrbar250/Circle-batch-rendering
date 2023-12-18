@@ -47,24 +47,6 @@ namespace cuda_functions
 
     glm::vec2* getMappedPointer(void **cuda_vbo_resource)
     {
-        // cudaGraphicsMapResources(1, (cudaGraphicsResource**)cuda_vbo_resource, 0);
-        // if(cuda_vbo_resource == nullptr)
-        // {
-        //     printf("oho\n");
-        // }
-        // if(*cuda_vbo_resource == nullptr)
-        // {
-        //     printf("faken\n");
-        // }
-
-        // cudaGraphicsResource** a = (cudaGraphicsResource**)cuda_vbo_resource;
-        // printf("a\n");
-        // cudaGraphicsResource* b = *a;
-        // printf("b\n");
-        // cudaGraphicsResource_t* c = (cudaGraphicsResource_t*)b;
-        // printf("c\n");
-        // it works until this point
-
 
         cudaGraphicsMapResources(1, (cudaGraphicsResource**)cuda_vbo_resource, 0);
         // printf("to sie wysypie\n");
