@@ -46,7 +46,7 @@ public:
     unsigned int VBO;
     unsigned int instanceVBO;
     // unsigned int cuda_vbo_resource;
-    void* cuda_vbo_resource;
+    void* cuda_vbo_resource; // cudaGraphicsResource*
 
     int boidsCount;
     vector<glm::vec2>& translations;

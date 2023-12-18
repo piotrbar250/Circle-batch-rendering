@@ -172,8 +172,12 @@ namespace cuda_functions
     void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations)
     {
         // parameters rearranged!!!!!
-        int threadsPerBlock = 256;
-        int blocksPerGrid = boidsCount / threadsPerBlock + 1;
+        // int threadsPerBlock = 10;
+        // int blocksPerGrid = boidsCount / threadsPerBlock + 1;
+        // blocksPerGrid*=2;
+        //  blocksPerGrid = 60;
+        int threadsPerBlock = 50;
+    int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
         computeNextFrameKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
         cudaDeviceSynchronize();
     }
@@ -190,8 +194,12 @@ namespace cuda_functions
 
     void swapFrames(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2 *newPositions, glm::vec2 *newVelocities)
     {
+        // int threadsPerBlock = 10;
+        // int blocksPerGrid = boidsCount / threadsPerBlock + 1;
+
+        // blocksPerGrid*=2;
         int threadsPerBlock = 256;
-        int blocksPerGrid = boidsCount / threadsPerBlock + 1;
+        int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
 
         swapFramesKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, positions, velocities, newPositions, newVelocities);
         cudaDeviceSynchronize();

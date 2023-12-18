@@ -47,29 +47,27 @@ namespace cuda_functions
 
     glm::vec2* getMappedPointer(void **cuda_vbo_resource)
     {
-        cudaDeviceSynchronize();
         // cudaGraphicsMapResources(1, (cudaGraphicsResource**)cuda_vbo_resource, 0);
-        if(cuda_vbo_resource == nullptr)
-        {
-            printf("oho\n");
-        }
-        if(*cuda_vbo_resource == nullptr)
-        {
-            printf("faken\n");
-        }
+        // if(cuda_vbo_resource == nullptr)
+        // {
+        //     printf("oho\n");
+        // }
+        // if(*cuda_vbo_resource == nullptr)
+        // {
+        //     printf("faken\n");
+        // }
 
-        cudaGraphicsResource** a = (cudaGraphicsResource**)cuda_vbo_resource;
-        printf("a\n");
-        cudaGraphicsResource* b = *a;
-        printf("b\n");
-        cudaGraphicsResource_t* c = (cudaGraphicsResource_t*)b;
-        printf("c\n");
+        // cudaGraphicsResource** a = (cudaGraphicsResource**)cuda_vbo_resource;
+        // printf("a\n");
+        // cudaGraphicsResource* b = *a;
+        // printf("b\n");
+        // cudaGraphicsResource_t* c = (cudaGraphicsResource_t*)b;
+        // printf("c\n");
         // it works until this point
 
-        cudaGraphicsMapResources(1, c, 0);  // now it crashes
 
-        // cudaGraphicsMapResources(1, (cudaGraphicsResource_t*)*cuda_vbo_resource, 0);
-        printf("to sie wysypie\n");
+        cudaGraphicsMapResources(1, (cudaGraphicsResource**)cuda_vbo_resource, 0);
+        // printf("to sie wysypie\n");
         size_t num_bytes;
         glm::vec2* devPtr;
         cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &num_bytes, (cudaGraphicsResource*)*cuda_vbo_resource);
