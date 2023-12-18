@@ -17,10 +17,24 @@
 #include "cuda_functions.h"
 #include <cuda_runtime.h>
 #include <stdio.h>
+#include <iostream>
 #include <glm/glm.hpp>
 
 namespace cuda_functions
 {
+#define gpuErrchk(ans)                        \
+    {                                         \
+        gpuAssert((ans), __FILE__, __LINE__); \
+    }
+    inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort = true)
+    {
+        if (code != cudaSuccess)
+        {
+            std::cerr << "GPUassert: " << cudaGetErrorString(code) << " " << file << " " << line << std::endl;
+            if (abort)
+                exit(code);
+        }
+    }
 
     __device__ glm::vec2 limit(glm::vec2 v, float l)
     {
@@ -196,12 +210,17 @@ namespace cuda_functions
     {
         // int threadsPerBlock = 256;
         // int blocksPerGrid = boidsCount / threadsPerBlock + 1;
-        
+
         int threadsPerBlock = 256;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
 
         swapFramesKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, positions, velocities, newPositions, newVelocities);
-        cudaDeviceSynchronize();
+        gpuErrchk(cudaGetLastError());
+
+        // Check for errors on the CUDA device side after kernel execution
+        gpuErrchk(cudaDeviceSynchronize());
+
+        // cudaDeviceSynchronize();
     }
 
 }
