@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../global.hpp"
+#include "../GPU/cuda_functions.h"
 
 using namespace std;
 using namespace glm;
@@ -44,6 +45,8 @@ public:
     unsigned int VAO;
     unsigned int VBO;
     unsigned int instanceVBO;
+    // unsigned int cuda_vbo_resource;
+    void* cuda_vbo_resource;
 
     int boidsCount;
     vector<glm::vec2>& translations;
@@ -67,8 +70,12 @@ public:
 
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), &translations[0], GL_DYNAMIC_DRAW);
+        // glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), &translations[0], GL_DYNAMIC_DRAW); DELETED
+        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec2), nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource, instanceVBO, cudaGraphicsMapFlagsWriteDiscard);
+        cuda_functions::registerVBO(&cuda_vbo_resource, instanceVBO);
 
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
@@ -79,13 +86,13 @@ public:
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
+        
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glVertexAttribDivisor(1, 1);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        // glBindBuffer(GL_ARRAY_BUFFER, VBO); DELETED 
 
         glBindVertexArray(0);
     }

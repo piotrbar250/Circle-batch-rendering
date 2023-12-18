@@ -54,7 +54,7 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 200;
+    int boidsCount = 5000;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
     
@@ -67,11 +67,11 @@ int main()
         glfwPollEvents();
 
         // flock.computeNextFrame();
-        flockGPU.computeNextFrame();
+        flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));
 
         boidsRenderer.clear();
 
-        boidsRenderer.update();
+        // boidsRenderer.update();
 
         boidsRenderer.draw();
         

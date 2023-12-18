@@ -13,7 +13,13 @@ namespace cuda_functions
     void getDataFromGPU(int boidsCount, glm::vec2 *device_translations, glm::vec2 *host_translations);
 
     // Boid kernel
-    void computeNextFrameInit(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations);
+    void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations);
     void swapFrames(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2 *newPositions, glm::vec2 *newVelocities);
+
+    // CUDA-GL-interop
+    void registerVBO(void** cuda_vbo_resource, unsigned int instanceVBO);
+
+    glm::vec2* getMappedPointer(void **cuda_vbo_resource);
+    void unmapResource(void **cuda_vbo_resource);
 }
 #endif

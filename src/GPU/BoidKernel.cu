@@ -169,7 +169,7 @@ namespace cuda_functions
         translations[gid] = newPositions[gid] - glm::vec2(START_X, START_Y);
     }
 
-    void computeNextFrameInit(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations)
+    void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations)
     {
         // parameters rearranged!!!!!
         int threadsPerBlock = 256;
