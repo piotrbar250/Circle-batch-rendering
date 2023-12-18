@@ -13,12 +13,7 @@
 #include "CPU/Flock.h"
 
 #include "GPU/FlockGPU.h"
-
-#include <chrono>
-
 using namespace std;
-
-void displayFPS();
 
 int main()
 {    
@@ -54,7 +49,7 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 5000;
+    int boidsCount = 4000;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
     
@@ -67,38 +62,16 @@ int main()
         glfwPollEvents();
 
         // flock.computeNextFrame();
-        flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));
+        flockGPU.computeNextFrame();
 
         boidsRenderer.clear();
 
-        // boidsRenderer.update();
+        boidsRenderer.update();
 
         boidsRenderer.draw();
         
         glfwSwapBuffers(window);
-
-        displayFPS();
     }
     glfwTerminate();
     return 0;
-}
-
-auto lastTime = std::chrono::high_resolution_clock::now();
-int frameCount = 0;
-
-void displayFPS() {
-    // Measure current time
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    frameCount++;
-
-    // Check if 5 seconds have passed
-    if (std::chrono::duration_cast<std::chrono::seconds>(currentTime - lastTime).count() >= 2) {
-        // Calculate and display FPS
-        double fps = frameCount / 2.0;
-        std::cout << "FPS: " << fps << std::endl;
-
-        // Reset timer and frame count
-        lastTime = currentTime;
-        frameCount = 0;
-    }
 }

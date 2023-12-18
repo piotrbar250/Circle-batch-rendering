@@ -61,15 +61,15 @@ public:
         cuda_functions::freeDataOnGPU(device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
     }
 
-    void computeNextFrame(void** cuda_vbo_resource)
+    void computeNextFrame()
     {
-        printf("hello\n");
-        glm::vec2* devPtr = cuda_functions::getMappedPointer(cuda_vbo_resource);
+        // printf("hello\n");
+        // glm::vec2* devPtr = cuda_functions::getMappedPointer(cuda_vbo_resource);
 
-        cuda_functions::computeNextFrame(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, devPtr);
+        cuda_functions::computeNextFrame(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
         cuda_functions::swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);
-        // cuda_functions::getDataFromGPU(boidsCount, device_translations, translations.data());
-        printf("hello here\n");
-        cuda_functions::unmapResource(cuda_vbo_resource);
+        cuda_functions::getDataFromGPU(boidsCount, device_translations, translations.data());
+        // printf("hello here\n");
+        // cuda_functions::unmapResource(cuda_vbo_resource);
     }
 };
