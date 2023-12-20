@@ -2,8 +2,10 @@
 #include <cuda_runtime.h>
 #include<cuda_runtime_api.h>
 #include <cuda_gl_interop.h>
+
 #include <stdio.h>
 #include <glm/glm.hpp>
+#include "Grid.cuh"
 
 namespace cuda_functions
 {
@@ -61,4 +63,20 @@ namespace cuda_functions
         cudaGraphicsUnmapResources(1, (cudaGraphicsResource**)cuda_vbo_resource,0);
         // cudaGraphicsUnmapResources(1, (cudaGraphicsResource_t*)*cuda_vbo_resource,0);
     }
+
+
+}
+
+namespace cuda_functions_grid
+{
+    void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted)
+    {
+        cudaMalloc((void**)&device_gridCellIndex, boidsCount*sizeof(int));
+        cudaMalloc((void**)&device_boidSequence, boidsCount*sizeof(int));
+        cudaMalloc((void**)&device_gridCellStart, cellCount*sizeof(int));
+        cudaMalloc((void**)&device_gridCellEnd, cellCount*sizeof(int));
+        cudaMalloc((void**)&device_positionsSorted, cellCount*sizeof(int));
+        cudaMalloc((void**)&device_velocitiesSorted, cellCount*sizeof(int));
+
+    } 
 }

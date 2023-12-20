@@ -51,10 +51,16 @@ add_compile_options("$<$<OR:$<CXX_COMPILER_ID:GNU>,$<C_COMPILER_ID:GNU>>:-w>")
 add_executable(app
     src/main.cpp
     src/mainGPU.cpp
+    src/mainGrid.cpp
     src/glad.c
     src/CPU/Boid.cpp  
     src/GPU/BoidKernel.cu
+    src/GPU/BoidGridKernel.cu
+    src/GPU/Neighbours.cu
+    src/GPU/cuda_dependencies.cu
     src/GPU/BoidsMemoryManagement.cu
+    src/GPU/UniformSpatialGrid.cu
+    # src/GPU/Grid.cu
     src/global.hpp
 )
 
