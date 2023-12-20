@@ -59,8 +59,6 @@ int main()
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 
-
-
     GridParams params;
     params.width = 1000;
     params.height = 1000;
