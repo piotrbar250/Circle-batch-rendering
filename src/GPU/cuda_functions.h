@@ -29,6 +29,8 @@ struct BoidData
 
     glm::vec2* device_positionsSorted;
     glm::vec2* device_velocitiesSorted;
+
+    GridParams params;
 };
 
 namespace cuda_functions
@@ -48,9 +50,7 @@ namespace cuda_functions
     void registerVBO(void **cuda_vbo_resource, unsigned int instanceVBO);
 
     glm::vec2 *getMappedPointer(void **cuda_vbo_resource);
-    void unmapResource(void **cuda_vbo_resource);
-
-   
+    void unmapResource(void **cuda_vbo_resource);   
 }
 
 namespace cuda_functions_grid

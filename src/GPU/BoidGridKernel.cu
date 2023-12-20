@@ -20,6 +20,8 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
+#include "Grid.cuh"
+
 namespace cuda_functions_grid
 {
 #define gpuErrchk(ans)                        \
@@ -86,6 +88,35 @@ namespace cuda_functions_grid
             steeringForce = limit(steeringVelocity, MAX_FORCE);
         }
         return steeringForce;
+    }
+
+    __device__ glm::vec2 alignmentForceGrid(int gid, int boidsCount,  BoidData boidData)
+    {
+        // consider saving result in alignmentForce
+        glm::vec2 target = glm::vec2(0, 0);
+        int neighsCount = 0;
+
+        
+        int cell = grid::pixels2Cell(boidData.device_positions[gid].x, boidData.device_positions[gid].y, boidData.params);
+        for(int i = boidData.device_gridCellStart[cell]; i <= boidData.device_gridCellEnd[cell]; i++)
+        {
+            target += boidData.device_velocitiesSorted[i];
+            neighsCount++;
+        }
+        // for (int i = 0; i < boidsCount; i++)
+        // {
+        //     if (checkNeighbour(gid, i, boidData))
+        //     {
+        //         target += boidData.device_velocities[i];
+        //         neighsCount++;
+        //     }
+        // }
+        if (neighsCount > 0)
+            target /= neighsCount;
+        else
+            target = boidData.device_velocities[gid];
+
+        return steeringForce(target, boidData.device_velocities[gid]);
     }
 
     __device__ glm::vec2 alignmentForce(int gid, int boidsCount,  BoidData boidData)
@@ -163,9 +194,9 @@ namespace cuda_functions_grid
     __device__ void applyForces(int gid, int boidsCount, BoidData boidData)
     {
         boidData.device_accelerations[gid] *= 0;
-        boidData.device_accelerations[gid] += alignmentForce(gid, boidsCount, boidData);
-        boidData.device_accelerations[gid] += (cohesionForce(gid, boidsCount, boidData));
-        boidData.device_accelerations[gid] += (separationForce(gid, boidsCount, boidData));
+        boidData.device_accelerations[gid] += alignmentForceGrid(gid, boidsCount, boidData);
+        // boidData.device_accelerations[gid] += (cohesionForce(gid, boidsCount, boidData));
+        // boidData.device_accelerations[gid] += (separationForce(gid, boidsCount, boidData));
     }
 
     __global__ void computeNextFrameKernel(int boidsCount, BoidData boidData)

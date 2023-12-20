@@ -13,7 +13,7 @@ namespace grid
     //     params.cellCount = params.widthCount * params.heightCount;
     // }
 
-    __always_inline __device__ int pixels2Cell(int px, int py, GridParams params)
+    __always_inline __device__ int pixels2Cell(float px, float py, GridParams params)
     {
         int xCell = px / params.cellSize;
         int yCell = py / params.cellSize;

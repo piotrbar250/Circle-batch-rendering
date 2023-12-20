@@ -1,6 +1,5 @@
 #include "cuda_dependencies.cu"
 
-
 namespace cuda_functions_grid
 {
 
@@ -44,6 +43,7 @@ namespace cuda_functions_grid
 
     void computeGridCellIndex(int boidsCount, GridParams params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted)
     {
+        printf("hello\n");
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
         boidCellKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, params, device_positions, device_gridCellIndex);
@@ -65,12 +65,13 @@ namespace cuda_functions_grid
 
         thrust::device_ptr<glm::vec2> dev_ptr_velocities(device_velocities);
         thrust::gather(sequence.begin(), sequence.end(), dev_ptr_velocities, device_velocitiesSortedVector.begin());
-
+printf("hello\n");
         // thrust::gather(sequence.begin(), sequence.end(), device_positions, device_positionsSorted);
         // thrust::gather(sequence.begin(), sequence.end(), device_positionsSortedVector.begin(), device_velocitiesSortedVector.begin());
         // thrust::gather(device_velocities,device_velocities, device_positionsSortedVector.begin(), device_velocitiesSortedVector.begin());
         
         // thrust::gather(sequence.begin(), sequence.end(), device_velocities, device_velocitiesSorted);
+        // cudaMalloc(&device_positionsSorted, boidsCount * sizeof(glm::vec2));
 
         thrust::copy(device_positionsSortedVector.begin(), device_positionsSortedVector.end(), device_positionsSorted);
         thrust::copy(device_velocitiesSortedVector.begin(), device_velocitiesSortedVector.end(), device_velocitiesSorted);
@@ -96,7 +97,5 @@ namespace cuda_functions_grid
 
         // thrust::gather(sequence.begin(), sequence.end(), dev_ptr_positions, device_positionsSortedVector.begin());
         // thrust::gather(sequence.begin(), sequence.end(), dev_vel1.begin(), sorted_vel1.begin());
-
-
     }
 }

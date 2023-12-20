@@ -87,11 +87,13 @@ public:
     void computeNextFrame(void** cuda_vbo_resource, GridParams params)
     {
         // allocate positionsSorted !!!!!!!!
+        printf("nawet tu\n");
         cuda_functions_grid::computeGridCellIndex(boidsCount, params, device_positions, device_velocities, device_gridCellIndex ,device_gridCellStart, device_gridCellEnd, device_boidSequence, device_positionsSorted, device_velocitiesSorted);
         
         // printf("hello\n");
         glm::vec2* devPtr = cuda_functions::getMappedPointer(cuda_vbo_resource);
         boidData.device_translations = devPtr;
+        boidData.params = params;
         // cuda_functions_grid::computeNextFrame(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, devPtr, device_positionsSorted, device_velocitiesSorted);
         cuda_functions_grid::computeNextFrame(boidsCount, boidData);
         cuda_functions::swapFrames(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities);

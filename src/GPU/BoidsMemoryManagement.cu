@@ -75,8 +75,8 @@ namespace cuda_functions_grid
         cudaMalloc((void**)&device_boidSequence, boidsCount*sizeof(int));
         cudaMalloc((void**)&device_gridCellStart, cellCount*sizeof(int));
         cudaMalloc((void**)&device_gridCellEnd, cellCount*sizeof(int));
-        cudaMalloc((void**)&device_positionsSorted, cellCount*sizeof(int));
-        cudaMalloc((void**)&device_velocitiesSorted, cellCount*sizeof(int));
+        cudaMalloc((void**)&device_positionsSorted, boidsCount*sizeof(glm::vec2));
+        cudaMalloc((void**)&device_velocitiesSorted, boidsCount*sizeof(glm::vec2));
 
     } 
 }
