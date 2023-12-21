@@ -90,7 +90,7 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 5000;
+    int boidsCount = 7000;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 
@@ -99,7 +99,7 @@ int main()
     loadParamsFromFile(params);
 
     FlockGridGPU flockGridGPU(boidsCount, params);
-    BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations);    
+    BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations, flockGridGPU.colorIndex);    
     
     // FlockGPU flockGPU(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flockGPU.translations);

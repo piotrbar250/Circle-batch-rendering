@@ -46,6 +46,9 @@ struct BoidData
     glm::vec2* device_positionsSorted;
     glm::vec2* device_velocitiesSorted;
 
+    int* colorIndex;
+    int* colorSorted;
+
     Params params;
 };
 
@@ -67,6 +70,8 @@ namespace cuda_functions
 
     glm::vec2 *getMappedPointer(void **cuda_vbo_resource);
     void unmapResource(void **cuda_vbo_resource);   
+
+    void sendColorsToGPU(int boidsCount, int* device_colorIndex, int* host_colorIndex);
 }
 
 namespace cuda_functions_grid
@@ -75,8 +80,9 @@ namespace cuda_functions_grid
     // void computeGridCellIndex(int boidsCount, GridParams params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
     // void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
     
-    void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted);
-    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
+    void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted, int*& colorIndex, int*& colorSorted);
+    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted, int* colorIndex, int* colorSorted);
+    void sendColorsToGPU(int boidsCount, int* device_colorIndex, int* host_colorIndex);
     void computeNextFrame(int boidsCount, BoidData boidData);
 }
 

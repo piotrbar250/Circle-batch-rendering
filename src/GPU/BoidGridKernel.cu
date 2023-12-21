@@ -56,6 +56,15 @@ namespace cuda_functions_grid
         return false;
     }
 
+
+    __device__ bool checkSpecies(int gid, int neighIndex, BoidData& boidData)
+    {
+        if(boidData.colorIndex[gid] == boidData.colorSorted[neighIndex])
+            return true;
+        return false;
+    }
+
+
     __device__ bool checkNeighbourGrid(glm::vec2 boidPosition, glm::vec2 neighPosition, BoidData& boidData)
     {
         if(boidPosition.x == neighPosition.x && boidPosition.y == neighPosition.y)
@@ -65,6 +74,8 @@ namespace cuda_functions_grid
             return true;
         return false;
     }
+
+
 
     __device__ void antiBorderCollisionThrough(int gid,  BoidData& boidData)
     {
@@ -109,7 +120,7 @@ namespace cuda_functions_grid
         
         for(int i = boidData.device_gridCellStart[cell]; i <= boidData.device_gridCellEnd[cell]; i++)
         { 
-            if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData))
+            if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData) || !checkSpecies(gid, i, boidData))
                 continue;
             target += boidData.device_velocitiesSorted[i];
             neighsCount++;
@@ -124,7 +135,7 @@ namespace cuda_functions_grid
                 continue;
             for(int i = boidData.device_gridCellStart[neighCell]; i <= boidData.device_gridCellEnd[neighCell]; i++)
             {
-                if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData))
+                if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData) || !checkSpecies(gid, i, boidData))
                     continue;
                 target += boidData.device_velocitiesSorted[i];
                 neighsCount++;
@@ -178,7 +189,7 @@ namespace cuda_functions_grid
         
         for(int i = boidData.device_gridCellStart[cell]; i <= boidData.device_gridCellEnd[cell]; i++)
         { 
-            if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData))
+            if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData) || !checkSpecies(gid, i, boidData))
                 continue;
             target += boidData.device_positionsSorted[i];
             neighsCount++;
@@ -193,7 +204,7 @@ namespace cuda_functions_grid
                 continue;
             for(int i = boidData.device_gridCellStart[neighCell]; i <= boidData.device_gridCellEnd[neighCell]; i++)
             {
-                if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData))
+                if(!checkNeighbourGrid(boidData.device_positions[gid], boidData.device_positionsSorted[i], boidData) || !checkSpecies(gid, i, boidData))
                     continue;
                 target += boidData.device_positionsSorted[i];
                 neighsCount++;

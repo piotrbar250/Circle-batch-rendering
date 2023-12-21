@@ -38,6 +38,13 @@ public:
     glm::vec2* device_positionsSorted;
     glm::vec2* device_velocitiesSorted;
 
+    vector<int> colorIndex;
+
+    int* device_colorIndex;
+    int* device_colorSorted;
+
+
+
     BoidData boidData;
 
     FlockGridGPU(int boidsCount, Params params) : boidsCount(boidsCount)
@@ -48,6 +55,8 @@ public:
         translations.resize(boidsCount);
         newPositions.resize(boidsCount);
         newVelocities.resize(boidsCount);
+
+        colorIndex.resize(boidsCount);
 
         for (int i = 0; i < boidsCount; i++)
         {
@@ -60,12 +69,14 @@ public:
                 velocities[i] = vec2(1, 1);
 
             velocities[i] = setMagnitude(velocities[i], MAX_SPEED);   
+
+            colorIndex[i] = {(int)randomFloat(0, 6)};
         }
 
         cuda_functions::allocateDataOnGPU(boidsCount, device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
         cuda_functions::sendDataToGPU(boidsCount, device_positions, device_velocities, positions.data(), velocities.data());
-        cuda_functions_grid::allocateGrid(boidsCount, params.cellCount, device_gridCellIndex, device_boidSequence, device_gridCellStart, device_gridCellEnd, device_positionsSorted, device_velocitiesSorted);
-
+        cuda_functions_grid::allocateGrid(boidsCount, params.cellCount, device_gridCellIndex, device_boidSequence, device_gridCellStart, device_gridCellEnd, device_positionsSorted, device_velocitiesSorted, device_colorIndex, device_colorSorted);
+        cuda_functions::sendColorsToGPU(boidsCount, device_colorIndex, colorIndex.data());
             boidData.device_positions = device_positions;
             boidData.device_velocities = device_velocities;
             boidData.device_newPositions = device_newPositions;
@@ -78,6 +89,8 @@ public:
             boidData.boidSequence = device_boidSequence;
             boidData.device_positionsSorted = device_positionsSorted;
             boidData.device_velocitiesSorted = device_velocitiesSorted;
+            boidData.colorIndex = device_colorIndex;
+            boidData.colorSorted = device_colorSorted;
     }
 
     ~FlockGridGPU()
@@ -89,7 +102,7 @@ public:
     {
         // allocate positionsSorted !!!!!!!!
         // printf("nawet tu\n");
-        cuda_functions_grid::computeGridCellIndex(boidsCount, params, device_positions, device_velocities, device_gridCellIndex ,device_gridCellStart, device_gridCellEnd, device_boidSequence, device_positionsSorted, device_velocitiesSorted);
+        cuda_functions_grid::computeGridCellIndex(boidsCount, params, device_positions, device_velocities, device_gridCellIndex ,device_gridCellStart, device_gridCellEnd, device_boidSequence, device_positionsSorted, device_velocitiesSorted, device_colorIndex, device_colorSorted);
         //   std::this_thread::sleep_for(std::chrono::seconds(200));
         // printf("hello\n");
         glm::vec2* devPtr = cuda_functions::getMappedPointer(cuda_vbo_resource);

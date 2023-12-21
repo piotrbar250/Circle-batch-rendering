@@ -18,6 +18,7 @@ namespace cuda_functions
         cudaMalloc((void **)&device_newVelocities, boidsCount * sizeof(glm::vec2));
         cudaMalloc((void **)&device_accelerations, boidsCount * sizeof(glm::vec2));
         cudaMalloc((void **)&device_translations, boidsCount * sizeof(glm::vec2));
+       
     }
 
     void freeDataOnGPU(glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations)
@@ -64,12 +65,16 @@ namespace cuda_functions
         // cudaGraphicsUnmapResources(1, (cudaGraphicsResource_t*)*cuda_vbo_resource,0);
     }
 
+    void sendColorsToGPU(int boidsCount, int* device_colorIndex, int* host_colorIndex)
+    {
+        cudaMemcpy(device_colorIndex, host_colorIndex, boidsCount * sizeof(int), cudaMemcpyHostToDevice);
+    }
 
 }
 
 namespace cuda_functions_grid
 {
-    void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted)
+    void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted,int*& colorIndex ,int*& colorSorted)
     {
         cudaMalloc((void**)&device_gridCellIndex, boidsCount*sizeof(int));
         cudaMalloc((void**)&device_boidSequence, boidsCount*sizeof(int));
@@ -77,6 +82,7 @@ namespace cuda_functions_grid
         cudaMalloc((void**)&device_gridCellEnd, cellCount*sizeof(int));
         cudaMalloc((void**)&device_positionsSorted, boidsCount*sizeof(glm::vec2));
         cudaMalloc((void**)&device_velocitiesSorted, boidsCount*sizeof(glm::vec2));
-
+        cudaMalloc((void **)&colorIndex, boidsCount * sizeof(int));
+        cudaMalloc((void**)&colorSorted, boidsCount*sizeof(int));
     } 
 }

@@ -55,7 +55,7 @@ namespace cuda_functions_grid
         }
     }
 
-    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted)
+    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted, int* colorIndex, int* colorSorted)
     {
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
@@ -88,6 +88,10 @@ namespace cuda_functions_grid
 
         thrust::device_ptr<glm::vec2> dev_ptr_velocities(device_velocities);
         thrust::gather(sequence.begin(), sequence.end(), dev_ptr_velocities, device_velocitiesSortedVector.begin());
+
+        thrust::device_ptr<int> dev_ptr_colorIndex(colorIndex);
+        thrust::device_ptr<int> dev_ptr_colorSorted(colorSorted);
+        thrust::gather(sequence.begin(), sequence.end(), dev_ptr_colorIndex, dev_ptr_colorSorted);
 // printf("hello\n");
         // thrust::gather(sequence.begin(), sequence.end(), device_positions, device_positionsSorted);
         // thrust::gather(sequence.begin(), sequence.end(), device_positionsSortedVector.begin(), device_velocitiesSortedVector.begin());

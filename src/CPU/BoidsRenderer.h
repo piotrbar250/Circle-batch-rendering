@@ -12,6 +12,14 @@ using namespace glm;
 
 const float PI = 3.14159265359;
 
+const glm::vec3 colorMap[] = {
+    glm::vec3(0.0f, 0.5f, 1.0f),
+    glm::vec3(0.2f, 1.0f, 0.2f),
+    glm::vec3(0.9f, 0.1f, 0.1f),
+    glm::vec3(0.7f, 0.3f, 1.0f),
+    glm::vec3(1.0f, 0.84f, 0.0f),
+};
+
 class Circle
 {
 public:
@@ -50,10 +58,13 @@ public:
 
     int boidsCount;
     vector<glm::vec2>& translations;
+    vector<int>& colorIndex;
+    vector<glm::vec3> boidColor;
     Circle circle;
 
-    BoidsRenderer(int boidsCount, vector<glm::vec2>& translations) : boidsCount(boidsCount), translations(translations)
+    BoidsRenderer(int boidsCount, vector<glm::vec2>& translations, vector<int>& colorIndex) : boidsCount(boidsCount), translations(translations), colorIndex(colorIndex)
     {
+        setColors();
         prepVertices();
     }
 
@@ -64,9 +75,24 @@ public:
         glDeleteVertexArrays(1, &VAO);
     }
 
+    void setColors()
+    {
+        boidColor.resize(boidsCount);
+        for(int i = 0; i < boidsCount; i++)
+        {
+            boidColor[i] = colorMap[colorIndex[i]];
+        }
+    }
+
     void prepVertices()
     {
         circle = Circle();
+
+        GLuint colorVBO;
+        glGenBuffers(1, &colorVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+        glBufferData(GL_ARRAY_BUFFER, boidsCount * sizeof(glm::vec3), &boidColor[0], GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
@@ -93,6 +119,12 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glVertexAttribDivisor(1, 1);
         // glBindBuffer(GL_ARRAY_BUFFER, VBO); DELETED 
+
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glVertexAttribDivisor(2, 1);
 
         glBindVertexArray(0);
     }
