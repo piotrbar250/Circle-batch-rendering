@@ -109,6 +109,11 @@ int main()
         loadParamsFromFile(params);
         glfwPollEvents();
         
+        double cursorX, cursorY;
+        glfwGetCursorPos(window, &cursorX, &cursorY);
+        params.cursorX = cursorX;
+        params.cursorY = params.height - cursorY;
+
         // flock.computeNextFrame();
         flockGridGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
         // flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));

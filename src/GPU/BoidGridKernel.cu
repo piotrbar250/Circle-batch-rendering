@@ -328,6 +328,21 @@ namespace cuda_functions_grid
         return steeringForce(target, boidData.device_velocities[gid]);
     }
 
+    __device__ glm::vec2 cursorDodgeForce(int gid, int boidsCount, BoidData& boidData)
+    {
+
+        glm::vec2 target = glm::vec2(0, 0);
+                glm::vec2 offset = boidData.device_positions[gid] - glm::vec2(boidData.params.cursorX, boidData.params.cursorY);
+
+
+                if (length(offset) == 0 || length(offset) > 100.0)
+                    return glm::vec2(0, 0);
+
+                glm::vec2 value = offset * (1 / length(offset));
+                target += value;
+        return steeringForce(target, boidData.device_velocities[gid]);
+    }
+
     __device__ void applyForces(int gid, int boidsCount, BoidData& boidData)
     {
         boidData.device_accelerations[gid] *= 0;
@@ -338,6 +353,7 @@ namespace cuda_functions_grid
         boidData.device_accelerations[gid] += alignmentForceGrid(gid, boidsCount, boidData);
         boidData.device_accelerations[gid] += (cohesionForceGrid(gid, boidsCount, boidData));
         boidData.device_accelerations[gid] += (separationForceGrid(gid, boidsCount, boidData));
+        boidData.device_accelerations[gid] += 5.0f * (cursorDodgeForce(gid, boidsCount, boidData));
 
         // // auto k1 = length(separationForce(gid, boidsCount, boidData));
         // // auto k2 = length(separationForceGrid(gid, boidsCount, boidData));        

@@ -24,6 +24,9 @@ struct Params
     int widthCount;
     int heightCount;
     int cellCount;
+
+    float cursorX;
+    float cursorY;
 };
 
 struct BoidData
