@@ -55,7 +55,7 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 10000;
+    int boidsCount = 200;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 

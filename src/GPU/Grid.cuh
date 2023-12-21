@@ -55,10 +55,25 @@ namespace grid
 
     __always_inline __device__ void getAdjacentCells(int index, int*neighs, GridParams params)
     {
+        for(int i = 0; i < 8; i++)
+            neighs[i] = -1;
+
         neighs[0] = leftCell(index, params);
         neighs[1] = rightCell(index, params);
         neighs[2] = topCell(index, params);
         neighs[3] = bottomCell(index, params);
+
+        if(topCell(index, params) != -1)
+        {
+            neighs[4] = leftCell(topCell(index, params), params);
+            neighs[5] = rightCell(topCell(index, params), params);
+        }
+
+        if(bottomCell(index, params) != -1)
+        {
+            neighs[6] = leftCell(bottomCell(index, params), params);
+            neighs[7] = rightCell(bottomCell(index, params), params);
+        }
     }
 
     __always_inline void run(GridParams params)
