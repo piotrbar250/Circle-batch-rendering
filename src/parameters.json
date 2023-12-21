@@ -1,0 +1,16 @@
+{
+    "width": 1000,
+    "height": 1000,
+    "numberOfSegments": 50,
+    "radius": 10,
+    "start_x": 500.0,
+    "start_y": 500.0,
+    "perception": 50.0,
+    "borderForce": 10,
+    "minSpeed": 0.0,
+    "maxSpeed": 4.0,
+    "maxForce": 1.0,
+    "alignmentForce": 1.0,
+    "cohesionForce": 1.0,
+    "separationForce": 1.0
+}

@@ -17,9 +17,44 @@
 #include "GPU/cuda_functions.h"
 #include <chrono>
 #include <thread>
+
+#include "nlohman/json.hpp"
+
 using namespace std;
+using json = nlohmann::json;
 
 void displayFPS();
+
+void loadParamsFromFile(Params& params) {
+    std::ifstream file("../src/parameters.json");
+    if (!file.is_open()) {
+        cerr << "Error opening file" << endl;
+        exit(1);
+    }
+
+    nlohmann::json j;
+    file >> j;
+
+    params.width = j["width"].get<int>();
+    params.height = j["height"].get<int>();
+    params.numberOfSegments = j["numberOfSegments"].get<int>();
+    params.radius = j["radius"].get<float>();
+    params.start_x = j["start_x"].get<float>();
+    params.start_y = j["start_y"].get<float>();
+    params.perception = j["perception"].get<float>();
+    params.borderForce = j["borderForce"].get<float>();
+    params.minSpeed = j["minSpeed"].get<float>();
+    params.maxSpeed = j["maxSpeed"].get<float>();
+    params.maxForce = j["maxForce"].get<float>();
+    params.alignmentForce = j["alignmentForce"].get<float>();
+    params.cohesionForce = j["cohesionForce"].get<float>();
+    params.separationForce = j["separationForce"].get<float>();
+    
+    params.cellSize = params.perception;
+    params.widthCount = (params.width + params.cellSize - 1) / params.cellSize;
+    params.heightCount = (params.height + params.cellSize - 1) / params.cellSize;
+    params.cellCount = params.widthCount * params.heightCount;
+}
 
 int main()
 {
@@ -55,17 +90,13 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 200;
+    int boidsCount = 5000;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 
-    GridParams params;
-    params.width = 1000;
-    params.height = 1000;
-    params.cellSize = 50; // TO BE CHANGED!!!!!
-    params.widthCount = (params.width + params.cellSize - 1) / params.cellSize;
-    params.heightCount = (params.height + params.cellSize - 1) / params.cellSize;
-    params.cellCount = params.widthCount * params.heightCount;
+    Params params;
+
+    loadParamsFromFile(params);
 
     FlockGridGPU flockGridGPU(boidsCount, params);
     BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations);    
@@ -75,8 +106,9 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        loadParamsFromFile(params);
         glfwPollEvents();
-
+        
         // flock.computeNextFrame();
         flockGridGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
         // flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));

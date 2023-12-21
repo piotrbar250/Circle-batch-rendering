@@ -28,7 +28,7 @@ namespace cuda_functions_grid
         // printf("cell %d, device_gridCellStart[cell] %d\n", gid, device_gridCellStart[gid]);
     }
 
-    __global__ void boidCellKernel(int boidsCount, GridParams params, glm::vec2* positions, int* gridCellIndex)
+    __global__ void boidCellKernel(int boidsCount, Params params, glm::vec2* positions, int* gridCellIndex)
     {
         int gid = blockIdx.x * blockDim.x + threadIdx.x;
         if(gid < boidsCount)
@@ -55,7 +55,7 @@ namespace cuda_functions_grid
         }
     }
 
-    void computeGridCellIndex(int boidsCount, GridParams params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted)
+    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted)
     {
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;

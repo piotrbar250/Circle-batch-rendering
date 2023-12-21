@@ -40,7 +40,7 @@ public:
 
     BoidData boidData;
 
-    FlockGridGPU(int boidsCount, GridParams params) : boidsCount(boidsCount)
+    FlockGridGPU(int boidsCount, Params params) : boidsCount(boidsCount)
     {
         positions.resize(boidsCount);
         accelerations.resize(boidsCount);
@@ -85,7 +85,7 @@ public:
         cuda_functions::freeDataOnGPU(device_positions, device_velocities, device_newPositions, device_newVelocities, device_accelerations, device_translations);
     }
 
-    void computeNextFrame(void** cuda_vbo_resource, GridParams params)
+    void computeNextFrame(void** cuda_vbo_resource, Params params)
     {
         // allocate positionsSorted !!!!!!!!
         // printf("nawet tu\n");

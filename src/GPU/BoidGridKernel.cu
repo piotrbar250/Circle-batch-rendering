@@ -47,7 +47,7 @@ namespace cuda_functions_grid
         return v;
     }
 
-    __device__ bool checkNeighbour(int gid, int neighIndex, BoidData boidData)
+    __device__ bool checkNeighbour(int gid, int neighIndex, BoidData& boidData)
     {
         if (gid == neighIndex)
             return false;
@@ -56,7 +56,7 @@ namespace cuda_functions_grid
         return false;
     }
 
-    __device__ bool checkNeighbourGrid(glm::vec2 boidPosition, glm::vec2 neighPosition, BoidData boidData)
+    __device__ bool checkNeighbourGrid(glm::vec2 boidPosition, glm::vec2 neighPosition, BoidData& boidData)
     {
         if(boidPosition.x == neighPosition.x && boidPosition.y == neighPosition.y)
             return false;
@@ -66,7 +66,7 @@ namespace cuda_functions_grid
         return false;
     }
 
-    __device__ void antiBorderCollisionThrough(int gid,  BoidData boidData)
+    __device__ void antiBorderCollisionThrough(int gid,  BoidData& boidData)
     {
         glm::vec2 &position = boidData.device_newPositions[gid];
 
@@ -100,7 +100,7 @@ namespace cuda_functions_grid
         return steeringForce;
     }
 
-    __device__ glm::vec2 alignmentForceGrid(int gid, int boidsCount,  BoidData boidData)
+    __device__ glm::vec2 alignmentForceGrid(int gid, int boidsCount,  BoidData& boidData)
     {
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
@@ -147,7 +147,7 @@ namespace cuda_functions_grid
         return steeringForce(target, boidData.device_velocities[gid]);
     }
 
-    __device__ glm::vec2 alignmentForce(int gid, int boidsCount,  BoidData boidData)
+    __device__ glm::vec2 alignmentForce(int gid, int boidsCount,  BoidData& boidData)
     {
         // consider saving result in alignmentForce
         glm::vec2 target = glm::vec2(0, 0);
@@ -169,7 +169,7 @@ namespace cuda_functions_grid
         return steeringForce(target, boidData.device_velocities[gid]);
     }
 
-    __device__ glm::vec2 cohesionForceGrid(int gid, int boidsCount, BoidData boidData)
+    __device__ glm::vec2 cohesionForceGrid(int gid, int boidsCount, BoidData& boidData)
     {
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
@@ -208,7 +208,7 @@ namespace cuda_functions_grid
         return steeringForce(target - boidData.device_positions[gid], boidData.device_velocities[gid]);
     }
 
-    __device__ glm::vec2 cohesionForce(int gid, int boidsCount, BoidData boidData)
+    __device__ glm::vec2 cohesionForce(int gid, int boidsCount, BoidData& boidData)
     {
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
@@ -229,7 +229,7 @@ namespace cuda_functions_grid
         return steeringForce(target - boidData.device_positions[gid], boidData.device_velocities[gid]);
     }
 
-    __device__ glm::vec2 separationForceGrid(int gid, int boidsCount, BoidData boidData)
+    __device__ glm::vec2 separationForceGrid(int gid, int boidsCount, BoidData& boidData)
     {
         // review force computation
         glm::vec2 target = glm::vec2(0, 0);
@@ -299,7 +299,7 @@ namespace cuda_functions_grid
     }
 
 
-    __device__ glm::vec2 separationForce(int gid, int boidsCount, BoidData boidData)
+    __device__ glm::vec2 separationForce(int gid, int boidsCount, BoidData& boidData)
     {
         // review force computation
         glm::vec2 target = glm::vec2(0, 0);
@@ -328,7 +328,7 @@ namespace cuda_functions_grid
         return steeringForce(target, boidData.device_velocities[gid]);
     }
 
-    __device__ void applyForces(int gid, int boidsCount, BoidData boidData)
+    __device__ void applyForces(int gid, int boidsCount, BoidData& boidData)
     {
         boidData.device_accelerations[gid] *= 0;
         // boidData.device_accelerations[gid] += alignmentForce(gid, boidsCount, boidData);

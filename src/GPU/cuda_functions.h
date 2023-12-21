@@ -3,8 +3,21 @@
 
 #include <glm/glm.hpp>
 
-struct GridParams
+struct Params
 {
+    int numberOfSegments;
+    float radius;
+    float start_x;
+    float start_y;
+    float perception;
+    float borderForce;
+    float minSpeed;
+    float maxSpeed;
+    float maxForce;
+    float alignmentForce;
+    float cohesionForce;
+    float separationForce;
+
     int width;
     int height;
     int cellSize;
@@ -30,7 +43,7 @@ struct BoidData
     glm::vec2* device_positionsSorted;
     glm::vec2* device_velocitiesSorted;
 
-    GridParams params;
+    Params params;
 };
 
 namespace cuda_functions
@@ -60,7 +73,7 @@ namespace cuda_functions_grid
     // void computeNextFrame(int boidsCount, glm::vec2 *device_positions, glm::vec2 *device_velocities, glm::vec2 *device_newPositions, glm::vec2 *device_newVelocities, glm::vec2 *device_accelerations, glm::vec2 *device_translations, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
     
     void allocateGrid(int boidsCount, int cellCount, int *&device_gridCellIndex, int *&device_boidSequence, int *&device_gridCellStart, int *&device_gridCellEnd, glm::vec2*& device_positionsSorted, glm::vec2*& device_velocitiesSorted);
-    void computeGridCellIndex(int boidsCount, GridParams params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
+    void computeGridCellIndex(int boidsCount, Params params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted);
     void computeNextFrame(int boidsCount, BoidData boidData);
 }
 

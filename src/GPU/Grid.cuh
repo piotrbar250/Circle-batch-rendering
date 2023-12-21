@@ -13,7 +13,7 @@ namespace grid
     //     params.cellCount = params.widthCount * params.heightCount;
     // }
 
-    __always_inline __device__ int pixels2Cell(float px, float py, GridParams params)
+    __always_inline __device__ int pixels2Cell(float px, float py, Params params)
     {
         int xCell = px / params.cellSize;
         int yCell = py / params.cellSize;
@@ -21,7 +21,7 @@ namespace grid
         return yCell * params.widthCount + xCell;
     }
 
-    __always_inline __device__ int leftCell(int index, GridParams params)
+    __always_inline __device__ int leftCell(int index, Params params)
     {
         int row = index % params.widthCount;
         if(row == 0)
@@ -29,7 +29,7 @@ namespace grid
         return index - 1;
     }
 
-    __always_inline __device__ int rightCell(int index, GridParams params)
+    __always_inline __device__ int rightCell(int index, Params params)
     {
         int row = (index + 1) % params.widthCount;
         if(row == 0)
@@ -37,7 +37,7 @@ namespace grid
         return index + 1;
     }
 
-    __always_inline __device__ int topCell(int index, GridParams params)
+    __always_inline __device__ int topCell(int index, Params params)
     {
         int cell = index + params.widthCount;
         if(cell >= params.cellCount)
@@ -45,7 +45,7 @@ namespace grid
         return cell;
     }
 
-    __always_inline __device__ int  bottomCell(int index, GridParams params)
+    __always_inline __device__ int  bottomCell(int index, Params params)
     {
         int cell = index - params.widthCount;
         if(cell < 0)
@@ -53,7 +53,7 @@ namespace grid
         return cell;
     }
 
-    __always_inline __device__ void getAdjacentCells(int index, int*neighs, GridParams params)
+    __always_inline __device__ void getAdjacentCells(int index, int*neighs, Params params)
     {
         for(int i = 0; i < 8; i++)
             neighs[i] = -1;
@@ -76,7 +76,7 @@ namespace grid
         }
     }
 
-    __always_inline void run(GridParams params)
+    __always_inline void run(Params params)
     {
         glm::vec2 positions[] = {
             {340, 150},
