@@ -26,8 +26,9 @@ using json = nlohmann::json;
 void displayFPS();
 
 void loadParamsFromFile(Params& params) {
-    std::ifstream file("../src/parameters.json");
-    if (!file.is_open()) {
+    fstream file("../src/parameters.json");
+    if (!file.is_open()) 
+    {
         cerr << "Error opening file" << endl;
         exit(1);
     }
@@ -58,7 +59,6 @@ void loadParamsFromFile(Params& params) {
 
 int main()
 {
-    // exit(1);
     GLFWwindow *window;
     if (!glfwInit())
     {
@@ -72,7 +72,7 @@ int main()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Cound't load opengl" << std::endl;
+        cout << "Cound't load opengl" << endl;
         glfwTerminate();
         return -1;
     }
@@ -88,11 +88,8 @@ int main()
 
     shader.setMat4("u_mvp", mvp);
 
-    // Computational part begins
 
-    int boidsCount = 7000;
-    // Flock flock(boidsCount);
-    // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
+    int boidsCount = 5000;
 
     Params params;
 
@@ -101,9 +98,6 @@ int main()
     FlockGridGPU flockGridGPU(boidsCount, params);
     BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations, flockGridGPU.colorIndex);    
     
-    // FlockGPU flockGPU(boidsCount);
-    // BoidsRenderer boidsRenderer(boidsCount, flockGPU.translations);
-
     while (!glfwWindowShouldClose(window))
     {
         loadParamsFromFile(params);
@@ -114,42 +108,33 @@ int main()
         params.cursorX = cursorX;
         params.cursorY = params.height - cursorY;
 
-        // flock.computeNextFrame();
         flockGridGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
-        // flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource));
 
         boidsRenderer.clear();
-
-        // boidsRenderer.update();
 
         boidsRenderer.draw();
 
         glfwSwapBuffers(window);
 
         displayFPS();
-        //   std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     glfwTerminate();
     return 0;
 }
 
-auto lastTime = std::chrono::high_resolution_clock::now();
+auto lastTime = chrono::high_resolution_clock::now();
 int frameCount = 0;
 
 void displayFPS()
 {
-    // Measure current time
-    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto currentTime = chrono::high_resolution_clock::now();
     frameCount++;
 
-    // Check if 5 seconds have passed
-    if (std::chrono::duration_cast<std::chrono::seconds>(currentTime - lastTime).count() >= 2)
+    if (chrono::duration_cast<chrono::seconds>(currentTime - lastTime).count() >= 2)
     {
-        // Calculate and display FPS
         double fps = frameCount / 2.0;
-        std::cout << "FPS: " << fps << std::endl;
+        cout << "FPS: " << fps << endl;
 
-        // Reset timer and frame count
         lastTime = currentTime;
         frameCount = 0;
     }

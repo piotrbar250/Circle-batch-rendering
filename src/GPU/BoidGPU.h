@@ -9,14 +9,6 @@ using namespace glm;
 
 namespace BoidGPU
 {
-    /*
-        TRANSFER CONSTANTS TO GPU!!!
-        consider changing to int** neighsIndices
-        consider saving result in alignmentForce array
-        limit, normalize should prepared for the device !!!!!!
-        rearrange kernel parameters
-    */
-
     bool checkNeighbour(int gid, int neighIndex, const vec2 *positions)
     {
         if (gid == neighIndex)

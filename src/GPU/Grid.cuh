@@ -6,13 +6,6 @@
 
 namespace grid
 {
-    // __device__ void prepGrid(gridParams params)
-    // {
-    //     params.widthCount = (width + params.cellSize - 1) / params.cellSize;
-    //     params.heightCount = (height + params.cellSize - 1) / params.cellSize;
-    //     params.cellCount = params.widthCount * params.heightCount;
-    // }
-
     __always_inline __device__ int pixels2Cell(float px, float py, Params params)
     {
         int xCell = px / params.cellSize;
@@ -74,18 +67,6 @@ namespace grid
             neighs[6] = leftCell(bottomCell(index, params), params);
             neighs[7] = rightCell(bottomCell(index, params), params);
         }
-    }
-
-    __always_inline void run(Params params)
-    {
-        glm::vec2 positions[] = {
-            {340, 150},
-            {100, 100},
-            {200, 200},
-            {379, 180},
-            {160, 115}
-        };
-        int boidCount = sizeof(positions) / sizeof(typeof(*positions));
     }
 }
 #endif // MY_CUDA_HEADER_H

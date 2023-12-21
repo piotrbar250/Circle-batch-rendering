@@ -11,7 +11,6 @@ namespace cuda_functions
 {
     void allocateDataOnGPU(int boidsCount, glm::vec2 *&device_positions, glm::vec2 *&device_velocities, glm::vec2 *&device_newPositions, glm::vec2 *&device_newVelocities, glm::vec2 *&device_accelerations, glm::vec2 *&device_translations)
     {
-        // error handling
         cudaMalloc((void **)&device_positions, boidsCount * sizeof(glm::vec2));
         cudaMalloc((void **)&device_velocities, boidsCount * sizeof(glm::vec2));
         cudaMalloc((void **)&device_newPositions, boidsCount * sizeof(glm::vec2));
@@ -44,7 +43,6 @@ namespace cuda_functions
 
     void registerVBO(void** cuda_vbo_resource, unsigned int instanceVBO)
     {
-        //unregister and cleanup
         cudaGraphicsGLRegisterBuffer((cudaGraphicsResource**)cuda_vbo_resource, instanceVBO, cudaGraphicsMapFlagsWriteDiscard);
     }
 
@@ -52,7 +50,6 @@ namespace cuda_functions
     {
 
         cudaGraphicsMapResources(1, (cudaGraphicsResource**)cuda_vbo_resource, 0);
-        // printf("to sie wysypie\n");
         size_t num_bytes;
         glm::vec2* devPtr;
         cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &num_bytes, (cudaGraphicsResource*)*cuda_vbo_resource);
@@ -62,7 +59,6 @@ namespace cuda_functions
     void unmapResource(void **cuda_vbo_resource)
     {
         cudaGraphicsUnmapResources(1, (cudaGraphicsResource**)cuda_vbo_resource,0);
-        // cudaGraphicsUnmapResources(1, (cudaGraphicsResource_t*)*cuda_vbo_resource,0);
     }
 
     void sendColorsToGPU(int boidsCount, int* device_colorIndex, int* host_colorIndex)

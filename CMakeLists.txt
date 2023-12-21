@@ -59,7 +59,6 @@ add_executable(app
     src/GPU/Neighbours.cu
     src/GPU/cuda_dependencies.cu
     src/GPU/BoidsMemoryManagement.cu
-    src/GPU/UniformSpatialGrid.cu
     # src/GPU/Grid.cu
     src/global.hpp
 )

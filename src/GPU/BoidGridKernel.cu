@@ -1,19 +1,3 @@
-// #define screenWidth 1000
-// #define screenHeight 1000
-
-// #define NUMBER_OF_SEGMENTS 50
-// #define boidData.params.radius 10
-// #define START_X 500
-// #define START_Y 500
-
-// #define BORDER_FORCE 10
-// #define PERCEPTION 50
-// #define SLOWING_DISTANCE 100
-
-// #define MIN_SPEED 0.0f
-#define MAX_SPEED 4.0f
-#define MAX_FORCE 1.0f
-
 #include "cuda_functions.h"
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -92,7 +76,6 @@ namespace cuda_functions_grid
 
     __device__ glm::vec2 steeringForce(glm::vec2 target, glm::vec2 velocity, BoidData &boidData)
     {
-        // limit, normalize should prepared for the device !!!!!!
         glm::vec2 targetOffset = target;
 
         glm::vec2 desiredVelocity = {0, 0};
@@ -102,7 +85,7 @@ namespace cuda_functions_grid
         {
             desiredVelocity = normalize(targetOffset) * boidData.params.maxSpeed;
             glm::vec2 steeringVelocity = desiredVelocity - velocity;
-            steeringForce = limit(steeringVelocity, MAX_FORCE);
+            steeringForce = limit(steeringVelocity, boidData.params.maxForce);
         }
         return steeringForce;
     }
@@ -137,26 +120,16 @@ namespace cuda_functions_grid
                 neighsCount++;
             }
         }
-        // for (int i = 0; i < boidsCount; i++)
-        // {
-        //     if (checkNeighbour(gid, i, boidData))
-        //     {
-        //         target += boidData.device_velocities[i];
-        //         neighsCount++;
-        //     }
-        // }
         if (neighsCount > 0)
             target /= neighsCount;
         else
             target = boidData.device_velocities[gid];
-        // target = boidData.device_velocities[gid];
 
         return steeringForce(target, boidData.device_velocities[gid], boidData);
     }
 
     __device__ glm::vec2 alignmentForce(int gid, int boidsCount, BoidData &boidData)
     {
-        // consider saving result in alignmentForce
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
 
@@ -238,7 +211,6 @@ namespace cuda_functions_grid
 
     __device__ glm::vec2 separationForceGrid(int gid, int boidsCount, BoidData &boidData)
     {
-        // review force computation
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
 
@@ -252,7 +224,6 @@ namespace cuda_functions_grid
             if (length(offset) == 0)
                 continue;
 
-            // value = normalize(offset) * (1 / length(offset));
             glm::vec2 value = offset * (1 / length(offset));
             target += value;
             neighsCount++;
@@ -281,21 +252,6 @@ namespace cuda_functions_grid
             }
         }
 
-        // for (int i = 0; i < boidsCount; i++)
-        // {
-        //     if (checkNeighbour(gid, i, boidData))
-        //     {
-        //         glm::vec2 offset = boidData.device_positions[gid] - boidData.device_positions[i];
-        //         if (length(offset) == 0)
-        //             continue;
-
-        //         // value = normalize(offset) * (1 / length(offset));
-        //         glm::vec2 value = offset * (1 / length(offset));
-        //         target += value;
-        //         neighsCount++;
-        //     }
-        // }
-
         if (neighsCount > 0)
             target /= neighsCount;
         else
@@ -306,7 +262,6 @@ namespace cuda_functions_grid
 
     __device__ glm::vec2 separationForce(int gid, int boidsCount, BoidData &boidData)
     {
-        // review force computation
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
 
@@ -318,7 +273,6 @@ namespace cuda_functions_grid
                 if (length(offset) == 0)
                     continue;
 
-                // value = normalize(offset) * (1 / length(offset));
                 glm::vec2 value = offset * (1 / length(offset));
                 target += value;
                 neighsCount++;
@@ -395,19 +349,12 @@ namespace cuda_functions_grid
 
     void swapFrames(int boidsCount, glm::vec2 *positions, glm::vec2 *velocities, glm::vec2 *newPositions, glm::vec2 *newVelocities)
     {
-        // int threadsPerBlock = 10;
-        // int blocksPerGrid = boidsCount / threadsPerBlock + 1;
-        printf("fff");
-        // blocksPerGrid*=2;
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
 
         swapFramesKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, positions, velocities, newPositions, newVelocities);
-        // cudaDeviceSynchronize();
         gpuErrchk(cudaGetLastError());
 
-        // Check for errors on the CUDA device side after kernel execution
         gpuErrchk(cudaDeviceSynchronize());
     }
-
 }
