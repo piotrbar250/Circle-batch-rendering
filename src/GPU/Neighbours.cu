@@ -57,7 +57,6 @@ namespace cuda_functions_grid
 
     void computeGridCellIndex(int boidsCount, GridParams params, glm::vec2* device_positions, glm::vec2* device_velocities, int* device_gridCellIndex, int* device_gridCellStart, int* device_gridCellEnd, int* boidSequence, glm::vec2* device_positionsSorted, glm::vec2* device_velocitiesSorted)
     {
-        // printf("hello\n");
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
         boidCellKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, params, device_positions, device_gridCellIndex);
@@ -66,12 +65,6 @@ namespace cuda_functions_grid
 
         // Check for errors on the CUDA device side after kernel execution
         gpuErrchk(cudaDeviceSynchronize());
-
-        // printf("fff\n");
-        // for(int i = 0; i < boidsCount; i++)
-        // {
-        //     printf("i: %d, device_gridCellIndex: %d\n", i, device_gridCellIndex[i]);
-        // }
 
         thrust::device_vector<int> sequence(boidsCount);
         thrust::sequence(thrust::device, sequence.begin(), sequence.end());
@@ -114,6 +107,8 @@ namespace cuda_functions_grid
 
         // Check for errors on the CUDA device side after kernel execution
         gpuErrchk(cudaDeviceSynchronize());
+
+        blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
 
         cellStartEndKernel<<<blocksPerGrid, threadsPerBlock>>>(boidsCount, device_gridCellIndex, device_gridCellStart, device_gridCellEnd);
 
