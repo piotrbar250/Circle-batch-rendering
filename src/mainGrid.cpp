@@ -16,7 +16,7 @@
 #include "GPU/FlockGridGPU.h"
 #include "GPU/cuda_functions.h"
 #include <chrono>
-
+#include <thread>
 using namespace std;
 
 void displayFPS();
@@ -55,27 +55,31 @@ int main()
 
     // Computational part begins
 
-    int boidsCount = 100;
+    int boidsCount = 5000;
     // Flock flock(boidsCount);
     // BoidsRenderer boidsRenderer(boidsCount, flock.translations);
 
     GridParams params;
     params.width = 1000;
     params.height = 1000;
-    params.cellSize = 50; // TO BE CHANGED!!!!!
+    params.cellSize = 100; // TO BE CHANGED!!!!!
     params.widthCount = (params.width + params.cellSize - 1) / params.cellSize;
     params.heightCount = (params.height + params.cellSize - 1) / params.cellSize;
     params.cellCount = params.widthCount * params.heightCount;
 
-    FlockGridGPU flockGridGPU(boidsCount, params);
-    BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations);
+    // FlockGridGPU flockGridGPU(boidsCount, params);
+    // BoidsRenderer boidsRenderer(boidsCount, flockGridGPU.translations);    
+    
+    FlockGridGPU flockGPU(boidsCount, params);
+    BoidsRenderer boidsRenderer(boidsCount, flockGPU.translations);
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
         // flock.computeNextFrame();
-        flockGridGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
+        // flockGridGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
+        flockGPU.computeNextFrame(&(boidsRenderer.cuda_vbo_resource), params);
 
         boidsRenderer.clear();
 
@@ -86,6 +90,7 @@ int main()
         glfwSwapBuffers(window);
 
         displayFPS();
+        //   std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     glfwTerminate();
     return 0;

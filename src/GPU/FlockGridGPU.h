@@ -5,7 +5,8 @@
 #include "../global.hpp"
 #include "BoidGPU.h"
 #include "cuda_functions.h"
-
+#include <chrono>
+#include <thread>
 using namespace std;
 using namespace glm;
 
@@ -87,9 +88,9 @@ public:
     void computeNextFrame(void** cuda_vbo_resource, GridParams params)
     {
         // allocate positionsSorted !!!!!!!!
-        printf("nawet tu\n");
+        // printf("nawet tu\n");
         cuda_functions_grid::computeGridCellIndex(boidsCount, params, device_positions, device_velocities, device_gridCellIndex ,device_gridCellStart, device_gridCellEnd, device_boidSequence, device_positionsSorted, device_velocitiesSorted);
-        
+        //   std::this_thread::sleep_for(std::chrono::seconds(200));
         // printf("hello\n");
         glm::vec2* devPtr = cuda_functions::getMappedPointer(cuda_vbo_resource);
         boidData.device_translations = devPtr;

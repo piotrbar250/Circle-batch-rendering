@@ -96,13 +96,44 @@ namespace cuda_functions_grid
         glm::vec2 target = glm::vec2(0, 0);
         int neighsCount = 0;
 
-        
         int cell = grid::pixels2Cell(boidData.device_positions[gid].x, boidData.device_positions[gid].y, boidData.params);
+        
+       // this works
+    //    int cnt = 0;
+        // printf("cell %d, boidData.device_gridCellStart[cell] %d\n",cell, boidData.device_gridCellStart[cell]);
+        // return target;
         for(int i = boidData.device_gridCellStart[cell]; i <= boidData.device_gridCellEnd[cell]; i++)
-        {
+        { 
+            // printf("tu tez: negihCel %d, i: %d\n", cell, i);
             target += boidData.device_velocitiesSorted[i];
             neighsCount++;
+            // cnt++;
         }
+        // printf("target1 : %f, %f  neighsCount: %d\n", target.x, target.y, neighsCount);
+        int neighCells[4];
+        grid::getAdjacentCells(cell, neighCells, boidData.params);
+
+        int cnt = 0;
+        //this doesnt work
+        for(int neighCell: neighCells)
+        {
+            // printf("%d, %d\n", cell, neighCell);
+            if(neighCell == -1)
+                continue;
+            for(int i = boidData.device_gridCellStart[neighCell]; i <= boidData.device_gridCellEnd[neighCell]; i++)
+            {
+                // printf("negihCel %d, i: %d\n", neighCell, i);
+                target += boidData.device_velocitiesSorted[i];
+                neighsCount++;
+                cnt++;
+            }
+            // break;
+        }
+        // printf("%d\n", cnt);
+        //  printf("target2: %f, %f  neighsCount: %d\n", target.x, target.y, neighsCount);
+
+
+
         // for (int i = 0; i < boidsCount; i++)
         // {
         //     if (checkNeighbour(gid, i, boidData))
@@ -115,6 +146,7 @@ namespace cuda_functions_grid
             target /= neighsCount;
         else
             target = boidData.device_velocities[gid];
+            // target = boidData.device_velocities[gid];
 
         return steeringForce(target, boidData.device_velocities[gid]);
     }
@@ -251,7 +283,7 @@ namespace cuda_functions_grid
     {
         // int threadsPerBlock = 10;
         // int blocksPerGrid = boidsCount / threadsPerBlock + 1;
-
+        printf("fff");
         // blocksPerGrid*=2;
         int threadsPerBlock = 128;
         int blocksPerGrid = (boidsCount + threadsPerBlock - 1) / threadsPerBlock;
